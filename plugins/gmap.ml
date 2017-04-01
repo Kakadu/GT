@@ -5,7 +5,7 @@ open List
 open Printf
 
 let _ =
-  register "map"
+  register "gmap"
     (fun loc descriptor ->
        let module H = Helper (struct let loc = loc end) in
        H.(

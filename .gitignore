@@ -27,3 +27,5 @@ check.sh
 check_err
 check_out
 cat_core.mli.sh
+*.native
+

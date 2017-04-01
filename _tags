@@ -1,0 +1,14 @@
+true: debug, rectypes
+
+<camlp5/*.ml>: syntax(camlp5o), package(camlp5), for-pack(Pa_gt)
+
+<src/GT.ml4>: use_m4
+<src/GT.ml>:  use_pa_gt
+
+<plugins/*.ml>: link_pa_gt
+<plugins/*.cmo>: pp(camlp5o), package(camlp5)
+
+<regression/test2*.*>: use_pa_gt, use_plugins
+<regression/test1*.*>: use_pa_gt, use_plugins
+<regression/test0*.*>: use_pa_gt, use_plugins
+<regression/orig/*>: traverse
