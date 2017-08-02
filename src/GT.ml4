@@ -123,41 +123,41 @@ class virtual ['a, 'ia, 'sa, 'inh, 'syn] list_t =
 
 class ['a] html_list_t =
   object
-    inherit ['a, unit, HTML.viewer, unit, HTML.viewer] @list
+    inherit ['a, unit, HTML.viewer, unit, HTML.viewer] list_t
     method c_Nil  _ _      = View.empty
     method c_Cons _ _ x xs = View.concat (x.fx ()) (match xs.x with [] -> View.empty | _ -> HTML.li (xs.fx ()))
   end
 
 class ['a] show_list_t =
   object
-    inherit ['a, unit, string, unit, string] @list
+    inherit ['a, unit, string, unit, string] list_t
     method c_Nil  _ _      = ""
     method c_Cons _ _ x xs = x.fx () ^ (match xs.x with [] -> "" | _ -> "; " ^ xs.fx ())
   end
 
 class ['a, 'sa] gmap_list_t =
   object
-    inherit ['a, unit, 'sa, unit, 'sa list] @list
+    inherit ['a, unit, 'sa, unit, 'sa list] list_t
     method c_Nil _ _ = []
     method c_Cons _ _ x xs = x.fx () :: xs.fx ()
   end
 
 class ['a, 'syn] foldl_list_t =
   object
-    inherit ['a, 'syn, 'syn, 'syn, 'syn] @list
+    inherit ['a, 'syn, 'syn, 'syn, 'syn] list_t
     method c_Nil s _ = s
     method c_Cons s _ x xs = xs.fx (x.fx s)
   end
 
 class ['a, 'syn] foldr_list_t =
   object
-    inherit ['a, 'syn] @list[foldl]
+    inherit ['a, 'syn] foldl_list_t
     method c_Cons s _ x xs = x.fx (xs.fx s)
   end
 
 class ['a] eq_list_t =
   object
-    inherit ['a, 'a, bool, 'a list, bool] @list
+    inherit ['a, 'a, bool, 'a list, bool] list_t
     method c_Nil inh subj = inh = []
     method c_Cons inh subj x xs =
       match inh with
@@ -167,7 +167,7 @@ class ['a] eq_list_t =
 
 class ['a] compare_list_t =
   object
-    inherit ['a, 'a, comparison, 'a list, comparison] @list
+    inherit ['a, 'a, comparison, 'a list, comparison] list_t
     method c_Nil inh subj =
       match inh with
       | [] -> EQ
@@ -193,13 +193,13 @@ let list : (('ia -> 'a -> 'sa) -> ('a, 'ia, 'sa, 'inh, 'syn) #list_tt -> 'inh ->
             >) t =
   {gcata   = list.gcata;
    plugins = object
-               method show    fa l = "[" ^ (transform(list) (lift fa) (new @list[show]) () l) ^ "]"
-               method html    fa   = transform(list) (lift fa) (new @list[html]) ()
-               method gmap    fa   = transform(list) (lift fa) (new @list[gmap] ) ()
-               method eq      fa   = transform(list) fa (new @list[eq])
-               method compare fa   = transform(list) fa (new @list[compare])
-               method foldl   fa   = transform(list) fa (new @list[foldl])
-               method foldr   fa   = transform(list) fa (new @list[foldr])
+               method show    fa l = "[" ^ (transform(list) (lift fa) (new show_list_t) () l) ^ "]"
+               method html    fa   = transform(list) (lift fa) (new html_list_t) ()
+               method gmap    fa   = transform(list) (lift fa) (new gmap_list_t ) ()
+               method eq      fa   = transform(list) fa (new eq_list_t)
+               method compare fa   = transform(list) fa (new compare_list_t)
+               method foldl   fa   = transform(list) fa (new foldl_list_t)
+               method foldr   fa   = transform(list) fa (new foldr_list_t)
              end
   }
 
@@ -234,43 +234,43 @@ module Lazy =
 
     class ['a] html_t_t =
       object
-        inherit ['a, unit, HTML.viewer, unit, HTML.viewer] @t
+        inherit ['a, unit, HTML.viewer, unit, HTML.viewer] t_t
         method t_t fa inh subj = fa inh @@ Lazy.force subj
       end
 
     class ['a] show_t_t =
       object
-        inherit ['a, unit, string, unit, string] @t
+        inherit ['a, unit, string, unit, string] t_t
         method t_t fa inh subj = fa inh @@ Lazy.force subj
       end
 
     class ['a, 'sa] gmap_t_t =
       object
-        inherit ['a, unit, 'sa, unit, 'sa t] @t
+        inherit ['a, unit, 'sa, unit, 'sa t] t_t
         method t_t fa inh subj = lazy (fa inh @@ Lazy.force subj)
       end
 
     class ['a, 'syn] foldl_t_t =
       object
-        inherit ['a, 'syn, 'syn, 'syn, 'syn] @t
+        inherit ['a, 'syn, 'syn, 'syn, 'syn] t_t
         method t_t fa inh subj = fa inh @@ Lazy.force subj
       end
 
     class ['a, 'syn] foldr_t_t =
       object
-        inherit ['a, 'syn] @t[foldl]
+        inherit ['a, 'syn] foldl_t_t
       end
 
     class ['a] eq_t_t =
       object
-        inherit ['a, 'a, bool, 'a t, bool] @t
+        inherit ['a, 'a, bool, 'a t, bool] t_t
         method t_t fa inh subj = fa (Lazy.force inh) (Lazy.force subj)
       end
 
 
     class ['a] compare_t_t =
       object
-        inherit ['a, 'a, comparison, 'a t, comparison] @t
+        inherit ['a, 'a, comparison, 'a t, comparison] t_t
         method t_t fa inh subj = fa (Lazy.force inh) (Lazy.force subj)
       end
 
@@ -285,13 +285,13 @@ module Lazy =
              >) t' =
       {gcata   = t.gcata;
        plugins = object
-                   method show    fa l = transform(t) (lift fa) (new @t[show]) () l
-                   method html    fa   = transform(t) (lift fa) (new @t[html]) ()
-                   method gmap    fa   = transform(t) (lift fa) (new @t[gmap] ) ()
-                   method eq      fa   = transform(t) fa (new @t[eq])
-                   method compare fa   = transform(t) fa (new @t[compare])
-                   method foldl   fa   = transform(t) fa (new @t[foldl])
-                   method foldr   fa   = transform(t) fa (new @t[foldr])
+                   method show    fa l = transform(t) (lift fa) (new show_t_t) () l
+                   method html    fa   = transform(t) (lift fa) (new html_t_t) ()
+                   method gmap    fa   = transform(t) (lift fa) (new gmap_t_t ) ()
+                   method eq      fa   = transform(t) fa (new eq_t_t)
+                   method compare fa   = transform(t) fa (new compare_t_t)
+                   method foldl   fa   = transform(t) fa (new foldl_t_t)
+                   method foldr   fa   = transform(t) fa (new foldr_t_t)
                  end
       }
   end
@@ -337,40 +337,40 @@ class virtual ['a, 'ia, 'sa, 'inh, 'syn] option_t =
 
 class ['a] html_option_t =
   object
-    inherit ['a, unit, HTML.viewer, unit, HTML.viewer] @option
+    inherit ['a, unit, HTML.viewer, unit, HTML.viewer] option_t
     method c_None  _ _  = HTML.string "None"
     method c_Some _ _ x = View.concat (HTML.string "Some") (HTML.ul (x.fx ()))
   end
 
 class ['a] show_option_t =
   object
-    inherit ['a, unit, string, unit, string] @option
+    inherit ['a, unit, string, unit, string] option_t
     method c_None  _ _  = "None"
     method c_Some _ _ x = "Some (" ^ x.fx () ^ ")"
   end
 
 class ['a, 'sa] gmap_option_t =
   object
-    inherit ['a, unit, 'sa, unit, 'sa option] @option
+    inherit ['a, unit, 'sa, unit, 'sa option] option_t
     method c_None _ _ = None
     method c_Some _ _ x = Some (x.fx ())
   end
 
 class ['a, 'syn] foldl_option_t =
   object
-    inherit ['a, 'syn, 'syn, 'syn, 'syn] @option
+    inherit ['a, 'syn, 'syn, 'syn, 'syn] option_t
     method c_None s _ = s
     method c_Some s _ x = x.fx s
   end
 
 class ['a, 'syn] foldr_option_t =
   object
-    inherit ['a, 'syn] @option[foldl]
+    inherit ['a, 'syn] foldl_option_t
   end
 
 class ['a] eq_option_t =
   object
-    inherit ['a, 'a, bool, 'a option, bool] @option
+    inherit ['a, 'a, bool, 'a option, bool] option_t
     method c_None inh subj = inh = None
     method c_Some inh subj x =
       match inh with
@@ -380,7 +380,7 @@ class ['a] eq_option_t =
 
 class ['a] compare_option_t =
   object
-    inherit ['a, 'a, comparison, 'a option, comparison] @option
+    inherit ['a, 'a, comparison, 'a option, comparison] option_t
     method c_None inh subj =
       match inh with
       | None -> EQ
@@ -402,13 +402,13 @@ let option : (('ia -> 'a -> 'sa) -> ('a, 'ia, 'sa, 'inh, 'syn) #option_tt -> 'in
               >) t =
   {gcata   = option.gcata;
    plugins = object
-               method show    fa = transform(option) (lift fa) (new @option[show]) ()
-               method html    fa = transform(option) (lift fa) (new @option[html]) ()
-               method gmap    fa = transform(option) (lift fa) (new @option[gmap] ) ()
-               method eq      fa = transform(option) fa (new @option[eq])
-               method compare fa = transform(option) fa (new @option[compare])
-               method foldl   fa = transform(option) fa (new @option[foldl])
-               method foldr   fa = transform(option) fa (new @option[foldr])
+               method show    fa = transform(option) (lift fa) (new show_option_t) ()
+               method html    fa = transform(option) (lift fa) (new html_option_t) ()
+               method gmap    fa = transform(option) (lift fa) (new gmap_option_t ) ()
+               method eq      fa = transform(option) fa (new eq_option_t)
+               method compare fa = transform(option) fa (new compare_option_t)
+               method foldl   fa = transform(option) fa (new foldl_option_t)
+               method foldr   fa = transform(option) fa (new foldr_option_t)
              end
   }
 
@@ -491,7 +491,7 @@ class virtual ['a, 'ia, 'sa, 'b, 'ib, 'sb, 'c, 'ic, 'sc, 'inh, 'syn] triple_t =
 
 class ['a, 'b] html_pair_t =
   object
-    inherit ['a, unit, HTML.viewer, 'b, unit, HTML.viewer, unit, HTML.viewer] @pair
+    inherit ['a, unit, HTML.viewer, 'b, unit, HTML.viewer, unit, HTML.viewer] pair_t
     method c_Pair _ _ x y =
       List.fold_left View.concat View.empty
          [HTML.string "("; HTML.ul (x.fx ()); HTML.string ", "; HTML.ul (y.fx ()); HTML.string ")"]
@@ -499,7 +499,7 @@ class ['a, 'b] html_pair_t =
 
 class ['a, 'b] show_pair_t =
   object
-    inherit ['a, unit, string, 'b, unit, string, unit, string] @pair
+    inherit ['a, unit, string, 'b, unit, string, unit, string] pair_t
     method c_Pair _ _ x y = "(" ^ x.fx () ^ ", " ^ y.fx () ^ ")"
   end
 class ['a, 'b, 'c] show_triple_t =
@@ -507,13 +507,13 @@ class ['a, 'b, 'c] show_triple_t =
     inherit [ 'a, unit, string
             , 'b, unit, string
             , 'c, unit, string
-            , unit, string] @triple
+            , unit, string] triple_t
     method c_Triple _ _ x y z = Printf.sprintf "(%s, %s, %s)" (x.fx ()) (y.fx ()) (z.fx ())
   end
 
 class ['a, 'sa, 'b, 'sb] gmap_pair_t =
   object
-    inherit ['a, unit, 'sa, 'b, unit, 'sb, unit, ('sa, 'sb) pair] @pair
+    inherit ['a, unit, 'sa, 'b, unit, 'sb, unit, ('sa, 'sb) pair] pair_t
     method c_Pair _ _ x y = (x.fx (), y.fx ())
   end
 
@@ -522,25 +522,25 @@ class ['a, 'sa, 'b, 'sb, 'c, 'sc] gmap_triple_t =
     inherit [ 'a, unit, 'sa
             , 'b, unit, 'sb
             , 'c, unit, 'sc
-            , unit, ('sa, 'sb, 'sc) triple] @triple
+            , unit, ('sa, 'sb, 'sc) triple] triple_t
     method c_Triple _ _ x y z = (x.fx (), y.fx (), z.fx ())
   end
 
 class ['a, 'b, 'syn] foldl_pair_t =
   object
-    inherit ['a, 'syn, 'syn, 'b, 'syn, 'syn, 'syn, 'syn] @pair
+    inherit ['a, 'syn, 'syn, 'b, 'syn, 'syn, 'syn, 'syn] pair_t
     method c_Pair s _ x y = x.fx (y.fx s)
   end
 
 class ['a, 'b, 'syn] foldr_pair_t =
   object
-    inherit ['a, 'b, 'syn] @pair[foldl]
+    inherit ['a, 'b, 'syn] foldl_pair_t
     method c_Pair s _ x y = y.fx (x.fx s)
   end
 
 class ['a, 'b] eq_pair_t =
   object
-    inherit ['a, 'a, bool, 'b, 'b, bool, ('a, 'b) pair, bool] @pair
+    inherit ['a, 'a, bool, 'b, 'b, bool, ('a, 'b) pair, bool] pair_t
     method c_Pair inh subj x y =
       match inh with
       (z, t) -> x.fx z && y.fx t
@@ -548,7 +548,7 @@ class ['a, 'b] eq_pair_t =
 
 class ['a, 'b] compare_pair_t =
   object
-    inherit ['a, 'a, comparison, 'b, 'b, comparison, ('a, 'b) pair, comparison] @pair
+    inherit ['a, 'a, comparison, 'b, 'b, comparison, ('a, 'b) pair, comparison] pair_t
     method c_Pair inh subj x y =
       match inh with
        (z, t) -> (match x.fx z with EQ -> y.fx t | c -> c)
@@ -565,13 +565,13 @@ let pair : (('ia -> 'a -> 'sa) -> ('ib -> 'b -> 'sb) -> ('a, 'ia, 'sa, 'b, 'ib, 
               >) t =
   {gcata   = pair.gcata;
    plugins = object
-               method show    fa fb = transform(pair) (lift fa) (lift fb) (new @pair[show]) ()
-               method html    fa fb = transform(pair) (lift fa) (lift fb) (new @pair[html]) ()
-               method gmap    fa fb = transform(pair) (lift fa) (lift fb) (new @pair[gmap] ) ()
-               method eq      fa fb = transform(pair) fa fb (new @pair[eq])
-               method compare fa fb = transform(pair) fa fb (new @pair[compare])
-               method foldl   fa fb = transform(pair) fa fb (new @pair[foldl])
-               method foldr   fa fb = transform(pair) fa fb (new @pair[foldr])
+               method show    fa fb = transform(pair) (lift fa) (lift fb) (new show_pair_t) ()
+               method html    fa fb = transform(pair) (lift fa) (lift fb) (new html_pair_t) ()
+               method gmap    fa fb = transform(pair) (lift fa) (lift fb) (new gmap_pair_t ) ()
+               method eq      fa fb = transform(pair) fa fb (new eq_pair_t)
+               method compare fa fb = transform(pair) fa fb (new compare_pair_t)
+               method foldl   fa fb = transform(pair) fa fb (new foldl_pair_t)
+               method foldr   fa fb = transform(pair) fa fb (new foldr_pair_t)
              end
   }
 
@@ -583,8 +583,8 @@ let triple : (  ('ia -> 'a -> 'sa) -> ('ib -> 'b -> 'sb) -> ('ic -> 'c -> 'sc) -
               >) t =
   {gcata   = triple.gcata;
    plugins = object
-              method show    fa fb fc = transform(triple) (lift fa) (lift fb) (lift fc) (new @triple[show]) ()
-              method gmap    fa fb fc = transform(triple) (lift fa) (lift fb) (lift fc) (new @triple[gmap]) ()
+              method show    fa fb fc = transform(triple) (lift fa) (lift fb) (lift fc) (new show_triple_t) ()
+              method gmap    fa fb fc = transform(triple) (lift fa) (lift fb) (lift fc) (new gmap_triple_t) ()
              end
   }
 

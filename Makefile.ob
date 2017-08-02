@@ -22,20 +22,14 @@ TESTS_ENVIRONMENT=./test.sh
 
 .DEFAULT_GOAL: all
 
-all: syntax lib plugins ppx bundle
+all: lib bundle
 
 lib:
 	$(OB) -Is src $(BYTE_TARGETS) $(NATIVE_TARGETS)
 
-syntax:
-	$(OB) camlp5/pa_gt.cmo
 
 ppx:
 	$(OB) -Is src ppx/ppx_deriving_gt.cma ppx/ppx_deriving_gt.cmxs
-
-PLUGINS=compare eq foldl foldr html gmap show typename
-plugins: syntax
-	$(OB) $(addprefix plugins/,$(addsuffix .cmo,$(PLUGINS)))
 
 celan: clean
 
@@ -106,10 +100,10 @@ INSTALL_TARGETS=META \
 	_build/src/View.cmi \
 	_build/src/HTML.cmi \
 	_build/src/GT.cmi \
-	_build/ppx/ppx_deriving_gt.cma \
-	_build/ppx/ppx_deriving_gt.cmxa \
-	_build/ppx/ppx_deriving_gt.cmxs \
-	_build/ppx/ppx_deriving_gt.cmi \
+	$(wildcard _build/ppx/ppx_deriving_gt.cma  ) \
+	$(wildcard _build/ppx/ppx_deriving_gt.cmxa ) \
+	$(wildcard _build/ppx/ppx_deriving_gt.cmxs ) \
+	$(wildcard _build/ppx/ppx_deriving_gt.cmi  ) \
 	$(wildcard $(addprefix _build/plugins/,$(addsuffix .cmo,$(PLUGINS))) ) \
 
 BUNDLEDIR=_build/bundle/$(PKGNAME)
