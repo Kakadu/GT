@@ -37,7 +37,7 @@ To preprocess only the code in this library (for example, a test) use the comman
 # Dependencies
 
   * ppxlib
-  * The [fork](https://github.com/Kakadu/camlp5/tree/ast2pt.cmi) of camlp5 which installs extra required `cmi` is in the branch `ast2pt.cmi`. We hope that it will be merged to upstream eventually 
+  * The [fork](https://github.com/Kakadu/camlp5/tree/ast2pt.cmi) of camlp5 which installs extra required `cmi` is in the branch `ast2pt.cmi`. It was already merged to upstream but not yet officially released.
   
 # Compilation
 
