@@ -145,11 +145,15 @@ class virtual generator initial_args tdecls = object(self: 'self)
       ~wrap:(fun body ->
           (* constructor arguments are *)
           let names =
-            (Pat.alias ~loc
-               (Pat.record1 ~loc (Ldot(Lident self#fix_module_name,
-                                       Naming.mut_arg_composite)))
-               Naming.mutuals_pack
-            ) ::
+            (Pat.tuple ~loc @@
+             List.map self#tdecls ~f:(fun {ptype_name} ->
+                 Pat.sprintf ~loc "%s" @@ Naming.for_ ptype_name.txt
+               )) ::
+            (* (Pat.alias ~loc
+             *    (Pat.record1 ~loc (Ldot(Lident self#fix_module_name,
+             *                            Naming.mut_arg_composite)))
+             *    Naming.mutuals_pack
+             * ) :: *)
             (self#prepare_fa_args ~loc tdecl) @
             [ Pat.var ~loc @@ self#self_arg_name tdecl.ptype_name.txt ]
           in
@@ -640,7 +644,23 @@ class virtual generator initial_args tdecls = object(self: 'self)
      * (self#apply_mutal_fix ~loc tdecls) @ *)
     (* (self#make_shortend_class ~loc tdecls) @ *)
     List.concat
-      [ self#make_indexes ~loc
+      [ (* self#make_indexes ~loc *)
+        (* self#make_universal_types ~loc *)
+        (* (let name = Naming.prereq_name self#plugin_name
+         *      (List.hd_exn tdecls).ptype_name.txt
+         *  in
+         *  [Str.tdecl_record ~loc ~name ~params:[] @@
+         *   List.map tdecls ~f:(fun tdecl ->
+         *       let lab_name = Naming.typ1_for_class_arg ~plugin:self#plugin_name
+         *           tdecl.ptype_name.txt  in
+         *       lab_decl ~loc (Naming.trf_function self#plugin_name
+         *                        tdecl.ptype_name.txt)
+         *         false
+         *         (Typ.ident ~loc lab_name)
+         *     )
+         *  ]
+         * ) *)
+        []
       ; List.map tdecls ~f:(self#make_class ~loc ~is_rec:true tdecls)
       ; self#make_trans_functions ~loc ~is_rec [] tdecls
       ]
@@ -805,7 +825,8 @@ class virtual generator initial_args tdecls = object(self: 'self)
           | xs -> Typ.poly ~loc xs t
          )
       ]
-  method make_universal_types ~loc ~mut_names tdecls =
+  method make_universal_types ~loc  =
+    let mut_names = List.map self#tdecls ~f:(fun td -> td.ptype_name.txt) in
     let (_:string list) = mut_names in
     let prereq_typ tl =
       Typ.arrow ~loc
@@ -1078,9 +1099,9 @@ class virtual generator initial_args tdecls = object(self: 'self)
                     ~f:(self#do_typ_gen ~loc ~is_self_rec ~mutal_decls tdecl)
                 in
                 let open Exp in
-                app_list ~loc (ident ~loc Naming.mut_arg_composite) @@
-                 [construct ~loc (Ldot (Lident self#index_module_name, Naming.cname_index s)) []] @
-                 args
+                app_list ~loc
+                  (ident ~loc @@ Naming.for_ s)
+                  args
               | _ ->
                 let init =
                   Exp.(app ~loc
