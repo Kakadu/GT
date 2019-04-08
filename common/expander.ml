@@ -538,17 +538,17 @@ let make_heading_gen ~loc wrap tdecl = []
 let collect_plugins_str ~loc tdecl plugins : Str.t list =
   (* TODO: fix eta expansion& application here *)
   let wrap p tdecl fname plugin_name =
-    p#eta_and_exp
-      ~center:(Exp.app ~loc
-                 (Exp.field ~loc
-                    (Exp.sprintf ~loc "%s" @@
-                     Naming.fix_func_name ~for_:tdecl.ptype_name.txt plugin_name)
-                    (Lident "call")
-                 )
-                 (Exp.access ~loc p#index_module_name
-                    (Naming.cname_index tdecl.ptype_name.txt)
-                 )
-              )
+    p#eta_and_exp ~center:(Exp.sprintf ~loc "%s_%s" plugin_name tdecl.ptype_name.txt)
+      (* ~center:(Exp.app ~loc
+       *            (Exp.field ~loc
+       *               (Exp.sprintf ~loc "%s" @@
+       *                Naming.fix_func_name ~for_:tdecl.ptype_name.txt plugin_name)
+       *               (Lident "call")
+       *            )
+       *            (Exp.access ~loc p#index_module_name
+       *               (Naming.cname_index tdecl.ptype_name.txt)
+       *            )
+       *         ) *)
       tdecl
   in
   let plugin_fields =
@@ -877,6 +877,59 @@ let do_typ ~loc sis plugins is_rec tdecl =
     ; collect_plugins_str ~loc tdecl plugins
     ]
 
+let fix_str ~loc tdecls =
+  value_binding ~loc
+    ~pat:(Pat.sprintf ~loc "%s" @@ "fix" (* fix_func_name () *))
+    ~expr:Exp.(
+        fun_list ~loc (List.map tdecls ~f:(fun {ptype_name} ->
+            Pat.sprintf ~loc "%s0" ptype_name.txt
+          )) @@
+
+        Exp.let_ ~loc ~rec_:true
+          (List.map tdecls ~f:(fun tdecl ->
+               let e k = Exp.fun_list ~loc
+                   (map_type_param_names tdecl.ptype_params
+                      ~f:(fun txt -> Pat.sprintf ~loc "f%s" txt))
+                   k
+               in
+               let inhsubj k =
+                 Exp.fun_list ~loc
+                   [ Pat.var ~loc "inh";  Pat.var ~loc "subj"]
+                   k
+               in
+               let gc  =
+                 Exp.app_list ~loc
+                   (Exp.sprintf ~loc "gcata_%s" tdecl.ptype_name.txt)
+                   [ Exp.app_list ~loc
+                       (Exp.sprintf ~loc "%s0" tdecl.ptype_name.txt)
+                       ((Exp.tuple ~loc @@
+                         List.map tdecls ~f:(fun {ptype_name={txt}} ->
+                             Exp.sprintf ~loc "trait%s" txt
+                           ))
+                        ::
+                        (map_type_param_names tdecl.ptype_params
+                           ~f:(fun txt -> Exp.sprintf ~loc "f%s" txt))
+                        @
+                        [Exp.app_list ~loc
+                           (Exp.sprintf ~loc "trait%s" tdecl.ptype_name.txt)
+                           (map_type_param_names tdecl.ptype_params
+                              ~f:(fun txt -> Exp.sprintf ~loc "f%s" txt))
+                        ]
+                       )
+                   ; Exp.ident ~loc "inh"
+                   ; Exp.ident ~loc "subj"
+                   ]
+
+               in
+               (Pat.sprintf ~loc "trait%s" tdecl.ptype_name.txt,
+                e @@ inhsubj @@ gc)
+             )) @@
+        Exp.tuple ~loc
+          (List.map tdecls ~f:(fun {ptype_name} ->
+               Exp.sprintf ~loc "trait%s" ptype_name.txt
+             ))
+      )
+  |> Str.of_vb ~loc ~rec_flag:Nonrecursive |> List.return
 
 let do_mutual_types ~loc sis plugins tdecls =
   let tdecls_new = topsort_tdecls tdecls in
@@ -894,9 +947,10 @@ let do_mutual_types ~loc sis plugins tdecls =
     [ sis
     ; List.map classes ~f:(fun c -> Str.of_class_declarations ~loc [c])
     ; catas
+    ; fix_str ~loc tdecls
     (* ; indexes_str ~loc plugins tdecls *)
     ; List.concat_map plugins ~f:(fun g -> g#do_mutuals ~loc ~is_rec:true tdecls_new)
-    ; List.concat_map tdecls_new ~f:(fun tdecl -> collect_plugins_str ~loc tdecl plugins)
+    (* ; List.concat_map tdecls_new ~f:(fun tdecl -> collect_plugins_str ~loc tdecl plugins) *)
     ]
 
 (* for signatures *)

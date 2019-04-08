@@ -548,52 +548,109 @@ class virtual generator initial_args tdecls = object(self: 'self)
                 ~is_mutal:(not (List.is_empty mutal_names))
                 tdecl
             in
-            Exp.fun_list ~loc
-              ((Pat.var ~loc "call")::(self#prepare_fa_args ~loc tdecl))
-              (self#make_trans_function_body ~loc ~rec_typenames:others
-                 class_name tdecl)
+            Exp.new_ ~loc (Lident class_name)
+            (* Exp.fun_list ~loc
+             *   ((Pat.var ~loc "call")::(self#prepare_fa_args ~loc tdecl))
+             *   (self#make_trans_function_body ~loc ~rec_typenames:others
+             *      class_name tdecl) *)
           )
       in
       let accI s = Ldot (Lident (Naming.hack_index_name tdecls @@
                                  sprintf "I%s" self#trait_name), s) in
-      let make_knot () = value_binding ~loc
-          ~pat:(Pat.sprintf ~loc "%s" @@ self#fix_func_name ())
-          ~expr:Exp.(app ~loc
-                       (access ~loc self#fix_module_name "fixv")
-                       (fun_ ~loc (Pat.sprintf ~loc "f") @@
-                        record1 ~loc (Lident "call") @@
-                        use_new_type "a" ~loc @@
-                        fun_ ~loc (Pat.constraint_ ~loc (Pat.var ~loc "sym")
-                                     (Typ.constr ~loc (accI "i")
-                                        [Typ.ident ~loc "a"])
-                                  ) @@
-                        constraint_ ~loc
-                          (match_ ~loc (ident ~loc "sym") @@
-                           List.map tdecls ~f:(fun tdecl ->
-                               case ~lhs:(Pat.access2 ~loc
-                                            (Naming.hack_index_name tdecls @@
-                                             Printf.sprintf "I%s" self#trait_name)
-                                            (Naming.cname_index tdecl.ptype_name.txt) )
-                                 ~rhs:Exp.(app ~loc
-                                             (sprintf ~loc "%s_0" @@
-                                              self#make_trans_function_name tdecl)
-                                             (ident ~loc "f")
-                                          )
-                             )
-                          )
-                          (Typ.ident ~loc "a")
-                       )
-                    )
+      let make_pack () =
+        assert (List.length self#tdecls <> 0);
+        let tdecl1 = List.hd_exn tdecls in
+        let e1 =
+          value_binding ~loc
+            ~pat:(Pat.sprintf ~loc "%s_%s_fix" self#trait_name tdecl1.ptype_name.txt)
+            ~expr:(
+              Exp.tuple ~loc @@
+              List.map self#tdecls ~f:(fun {ptype_name={txt}} ->
+                  Exp.sprintf ~loc "%s_%s" self#trait_name txt
+                )
+            )
+        in
+        let others =
+          List.map (List.tl_exn self#tdecls) ~f:(fun {ptype_name={txt}} ->
+              value_binding ~loc
+                ~pat:(Pat.sprintf ~loc "%s_%s_fix" self#trait_name txt)
+                ~expr:(Exp.sprintf ~loc "%s_%s_fix" self#trait_name tdecl1.ptype_name.txt)
+            )
+        in
+        e1::others
+
+        (* value_binding ~loc
+         *   ~pat:(Pat.sprintf ~loc "%s" @@ self#fix_func_name ())
+         *   ~expr:Exp.(
+         *
+         *       fun_list ~loc (List.map self#tdecls ~f:(fun {ptype_name} ->
+         *           Pat.sprintf ~loc "%s0" ptype_name.txt
+         *         )) @@
+         *
+         *       Exp.let_ ~loc ~rec_:true
+         *         (List.map self#tdecls ~f:(fun tdecl ->
+         *              (Pat.any ~loc, Exp.int_const ~loc 1)
+         *            )) @@
+         *       Exp.tuple ~loc
+         *         (List.map self#tdecls ~f:(fun {ptype_name} ->
+         *              Exp.sprintf ~loc "%s0" ptype_name.txt
+         *            )) *)
+
+              (* app ~loc
+               *          (access ~loc self#fix_module_name "fixv")
+               *          (fun_ ~loc (Pat.sprintf ~loc "f") @@
+               *           record1 ~loc (Lident "call") @@
+               *           use_new_type "a" ~loc @@
+               *           fun_ ~loc (Pat.constraint_ ~loc (Pat.var ~loc "sym")
+               *                        (Typ.constr ~loc (accI "i")
+               *                           [Typ.ident ~loc "a"])
+               *                     ) @@
+               *           constraint_ ~loc
+               *             (match_ ~loc (ident ~loc "sym") @@
+               *              List.map tdecls ~f:(fun tdecl ->
+               *                  case ~lhs:(Pat.access2 ~loc
+               *                               (Naming.hack_index_name tdecls @@
+               *                                Printf.sprintf "I%s" self#trait_name)
+               *                               (Naming.cname_index tdecl.ptype_name.txt) )
+               *                    ~rhs:Exp.(app ~loc
+               *                                (sprintf ~loc "%s_0" @@
+               *                                 self#make_trans_function_name tdecl)
+               *                                (ident ~loc "f")
+               *                             )
+               *                )
+               *             )
+               *             (Typ.ident ~loc "a")
+               *          ) *)
+                    (* ) *)
       in
-      let knots = List.map tdecls ~f:(fun {ptype_name=n} ->
-          value_binding ~loc ~pat:(Pat.sprintf ~loc "%s" @@ self#fix_func_name ~for_:n.txt ())
-            ~expr:(Exp.ident ~loc @@ self#fix_func_name ())
+      let knots = List.mapi tdecls ~f:(fun n {ptype_name={txt}} ->
+          value_binding ~loc
+            ~pat:(Pat.sprintf ~loc "%s" @@ Naming.trf_function self#trait_name txt)
+            ~expr:(
+              Exp.fun_ ~loc (Pat.var ~loc "eta") @@
+              Exp.let_ ~loc ~rec_:false
+                [ Pat.tuple ~loc @@ List.mapi tdecls ~f:(fun i _ ->
+                      if i=n then Pat.var ~loc "f"
+                      else Pat.any ~loc
+                    )
+                , Exp.app_list ~loc
+                      (Exp.ident ~loc "fix")
+                      (List.map tdecls ~f:(fun {ptype_name={txt}} ->
+                           Exp.sprintf ~loc "%s" @@
+                           Naming.init_trf_function self#trait_name txt
+                         ))
+                ]
+                Exp.(app ~loc (sprintf ~loc "f") (sprintf ~loc "eta"))
+
+              (* Exp.ident ~loc @@ self#fix_func_name () *)
+
+            )
         )
       in
       List.map ~f:(Str.of_vb ~loc ~rec_flag:Nonrecursive)
         ((List.map tdecls ~f:on_tdecl) @
-         [ make_knot () ] @
-         knots
+         knots @
+         (make_pack ())
         )
 
   method fix_func_name ?for_ () =
@@ -611,7 +668,8 @@ class virtual generator initial_args tdecls = object(self: 'self)
 
   method do_single ~loc ~is_rec tdecl =
     List.concat
-      [ self#make_indexes ~loc
+      [ []
+      (* ; self#make_indexes ~loc *)
       ; [ self#make_class ~loc ~is_rec [] tdecl ]
       ; self#make_trans_functions ~loc ~is_rec [] [tdecl]
       ]
