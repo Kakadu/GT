@@ -879,7 +879,7 @@ let do_typ ~loc sis plugins is_rec tdecl =
 
 let fix_str ~loc tdecls =
   value_binding ~loc
-    ~pat:(Pat.sprintf ~loc "%s" @@ "fix" (* fix_func_name () *))
+    ~pat:(Pat.sprintf ~loc "%s" @@ Naming.make_fix_name tdecls)
     ~expr:Exp.(
         fun_list ~loc (List.map tdecls ~f:(fun {ptype_name} ->
             Pat.sprintf ~loc "%s0" ptype_name.txt

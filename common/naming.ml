@@ -45,11 +45,11 @@ let stub_class_name ~plugin tdecl =
 
 let init_trf_function trait s = trf_function trait s ^ "_0"
 
-let make_fix_name ~plugin tdecls =
+let make_fix_name tdecls =
   (* Let's use only first type for fix function definition *)
   assert (List.length tdecls > 0);
   let name = (List.hd_exn tdecls).ptype_name.txt in
-  String.concat ~sep:"_" [plugin; "fix"; name]
+  String.concat ~sep:"_" ["fix"; name]
 
 let name_fix_generated_object ~plugin tdecl =
   sprintf "%s_o_%s" plugin tdecl.ptype_name.txt
