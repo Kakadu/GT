@@ -347,8 +347,9 @@ class virtual generator initial_args tdecls = object(self: 'self)
 
             [Exp.sprintf ~loc "%s" Naming.mutuals_pack]
           | _ ->
-            [Exp.of_longident ~loc @@
-             map_longident ~f:(fun for_ -> self#fix_func_name ~for_ ()) cid.txt]
+            []
+            (* [Exp.of_longident ~loc @@
+             *  map_longident ~f:(fun for_ -> self#fix_func_name ~for_ ()) cid.txt] *)
           ) @ args
         in
         Cf.inherit_ ~loc @@ Cl.apply ~loc
@@ -541,25 +542,22 @@ class virtual generator initial_args tdecls = object(self: 'self)
          let knot = ... using fix
       *)
       let mutal_names = List.map self#tdecls ~f:(fun {ptype_name={txt}} -> txt) in
-      let on_tdecl tdecl =
-        (* let cur_name = tdecl.ptype_name.txt in *)
-        (* let others =
-         *   List.filter mutal_names ~f:(String.(<>) cur_name)
-         * in *)
-        value_binding ~loc
-          ~pat:(Pat.sprintf ~loc "%s" @@
-                Naming.init_trf_function self#trait_name tdecl.ptype_name.txt)
-          ~expr:(
-            let class_name = self#make_class_name
-                ~is_mutal:(not (List.is_empty mutal_names))
-                tdecl
-            in
-            Exp.new_ ~loc (Lident class_name)
-            (* Exp.fun_list ~loc
-             *   ((Pat.var ~loc "call")::(self#prepare_fa_args ~loc tdecl))
-             *   (self#make_trans_function_body ~loc ~rec_typenames:others
-             *      class_name tdecl) *)
-          )
+      let on_tdecl =
+        if (List.length self#tdecls > 1)
+        then
+          List.map self#tdecls ~f:(fun tdecl ->
+              value_binding ~loc
+                ~pat:(Pat.sprintf ~loc "%s" @@
+                      Naming.init_trf_function self#trait_name tdecl.ptype_name.txt)
+                ~expr:(
+                  let class_name = self#make_class_name
+                      ~is_mutal:(not (List.is_empty mutal_names))
+                      tdecl
+                  in
+                  Exp.new_ ~loc (Lident class_name)
+                )
+            )
+        else []
       in
       (* let accI s = Ldot (Lident (Naming.hack_index_name tdecls @@
        *                            sprintf "I%s" self#trait_name), s) in *)
@@ -657,7 +655,7 @@ class virtual generator initial_args tdecls = object(self: 'self)
             )
       in
       List.map ~f:(Str.of_vb ~loc ~rec_flag:Nonrecursive)
-        ((List.map tdecls ~f:on_tdecl) @
+        (on_tdecl @
          knots @
          (make_pack ())
         )
