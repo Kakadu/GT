@@ -98,7 +98,7 @@ class g args tdecls = object(self)
     Typ.(arrow ~loc (unit ~loc) @@
          arrow ~loc (var ~loc "a") (constr ~loc (Ldot (Lident "HTML","er")) []))
   method trf_scheme_params = ["a"]
-  inherit P.index_result
+
 
   method on_tuple_constr ~loc ~is_self_rec ~mutal_decls ~inhe tdecl constr_info ts =
     let constr_name = match constr_info with

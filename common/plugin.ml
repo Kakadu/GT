@@ -938,9 +938,37 @@ class virtual generator initial_args tdecls = object(self: 'self)
    *)
   method do_typ_gen ~loc ~mutal_decls ~is_self_rec tdecl t : Exp.t =
     let mutal_names = List.map mutal_decls ~f:(fun t -> t.ptype_name.txt) in
+
+    let on_constr params helper typname =
+        self#abstract_trf ~loc (fun einh esubj ->
+            self#fancy_app ~loc
+              (List.fold_left params
+                 ~init:(
+                   Exp.(app ~loc
+                          (access ~loc "GT" self#plugin_name)
+                          (access ~loc "GT" typname)
+                       )
+                 )
+                 ~f:(fun left typ ->
+                     (* TODO: copy-paste with polyvariants *)
+                     let arg = helper ~loc typ in
+                     let arg =
+                       if self#need_inh_attr
+                       then arg
+                       else Exp.app ~loc arg (Exp.unit ~loc)
+                     in
+                     self#compose_apply_transformations ~loc ~left arg typ
+                   )
+              )
+              einh esubj
+          )
+
+    in
     let rec helper ~loc t =
       match t.ptyp_desc with
       | Ptyp_var s -> self#generate_for_variable ~loc s
+      | Ptyp_arrow (_,t1,t2) ->
+        on_constr [t1;t2] helper "arrow"
       | Ptyp_tuple params ->
         self#abstract_trf ~loc (fun einh esubj ->
             self#fancy_app ~loc
@@ -1032,12 +1060,9 @@ class virtual generator initial_args tdecls = object(self: 'self)
               self#fancy_app ~loc
                 (Exp.app_list ~loc
                    Exp.(app ~loc
-                          (of_longident ~loc @@ Ldot (Lident "GT", self#plugin_name))
+                          (Exp.access ~loc "GT" self#plugin_name)
                           (of_longident ~loc cident)
                        )
-                     (* of_longident ~loc @@
-                      *    map_longident cident
-                      *      ~f:(Printf.sprintf "%s_%s" self#plugin_name)) *)
                    (List.map typs ~f:(fun typ ->
                         let arg = helper ~loc typ in
                         if self#need_inh_attr
@@ -1064,7 +1089,7 @@ class virtual generator initial_args tdecls = object(self: 'self)
                 ~oninherit:(oninherit ~loc einh esubj)
             )
           end
-        | _ -> failwith "unsupported case in do_typ"
+        | _ -> failwith "unsupported case in do_typ_gen"
     in
     match self#treat_type_specially t with
     | None -> helper ~loc t
@@ -1358,7 +1383,7 @@ class virtual no_inherit_arg args _tdecls = object(self: 'self)
    *     ] *)
 
 end
-
+(*
 class index_result = object
   method index_functor tdecls =
     assert (List.length tdecls > 0);
@@ -1379,5 +1404,5 @@ class index_result2 = object
     let name = (List.hd_exn tdecls).ptype_name.txt in
     sprintf "IndexResult2_%s" name
 end
-
+                      *)
 end

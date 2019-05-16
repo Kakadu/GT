@@ -68,7 +68,7 @@ class g args tdecls = object(self)
          arrow ~loc (var ~loc "a") (constr ~loc (Lident "string") []))
   method trf_scheme_params = ["a"]
 
-  inherit P.index_result
+  (* inherit P.index_result *)
 
   (* Adapted to generate only single method per constructor definition *)
   method on_tuple_constr ~loc ~is_self_rec ~mutal_decls ~inhe tdecl constr_info ts =

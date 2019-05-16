@@ -66,7 +66,7 @@ class g initial_args tdecls = object(self: 'self)
     Typ.(arrow ~loc (var ~loc "a") @@
          arrow ~loc (var ~loc "a") (constr ~loc (Ldot (Lident "GT", "comparison")) []))
   method trf_scheme_params = ["a"]
-  inherit P.index_result
+
 
   method! make_typ_of_class_argument: 'a . loc:loc -> type_declaration ->
     (Typ.t -> 'a -> 'a) ->
