@@ -91,8 +91,37 @@ class virtual generator initial_args tdecls = object(self: 'self)
         Format.printf "%d -> %a\n%!" k Pprintast.expression e
       )
 
-  method extra_class_sig_members _ = []
-  method extra_class_str_members _ = []
+  method extra_class_sig_members tdecl =
+    let loc = loc_from_caml tdecl.ptype_loc in
+    let wrap =
+      if is_polyvariant_tdecl tdecl
+      then Typ.openize ~loc
+      else (fun ?as_ t -> t)
+    in
+    [ Ctf.constraint_ ~loc
+        (Typ.var ~loc @@ Naming.make_extra_param tdecl.ptype_name.txt)
+        (wrap @@ Typ.constr ~loc (Lident tdecl.ptype_name.txt) @@
+         map_type_param_names tdecl.ptype_params
+           ~f:(fun s -> Typ.var ~loc s)
+        )
+    ]
+
+  method extra_class_str_members tdecl =
+    let loc = loc_from_caml tdecl.ptype_loc in
+    let wrap =
+      if is_polyvariant_tdecl tdecl
+      then Typ.openize ~loc
+      else (fun ?as_ t -> t)
+    in
+    [ Cf.constraint_ ~loc
+        (Typ.var ~loc @@ Naming.make_extra_param tdecl.ptype_name.txt)
+        (wrap @@ Typ.constr ~loc (Lident tdecl.ptype_name.txt) @@
+         map_type_param_names tdecl.ptype_params
+           ~f:(fun s -> Typ.var ~loc s)
+        )
+    ]
+
+
   method cur_name tdecl = tdecl.ptype_name.txt
 
   (* preparing class of transformation for [tdecl] *)
@@ -1110,8 +1139,6 @@ class virtual generator initial_args tdecls = object(self: 'self)
   method virtual app_gcata: loc:loc -> Exp.t -> Exp.t
   method virtual make_typ_of_self_trf:
     loc:loc -> ?in_class:bool -> type_declaration -> Typ.t
-
-  (* method virtual main_inh : loc:loc -> Ppxlib.type_declaration -> Typ.t *)
 
   method virtual make_RHS_typ_of_transformation: loc:AstHelpers.loc ->
     ?subj_t:Typ.t -> ?syn_t:Typ.t -> type_declaration -> Typ.t

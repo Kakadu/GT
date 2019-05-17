@@ -137,7 +137,7 @@ let make_interface_class_sig ~loc tdecl =
               Typ.chain_arrow ~loc @@
               let open Typ in
               [ var ~loc "inh"
-              ; use_tdecl tdecl
+              ; var ~loc Naming.extra_param_name
               ; var ~loc "syn" ]
             ]
       )
@@ -157,7 +157,7 @@ let make_interface_class_sig ~loc tdecl =
         Ctf.method_ ~loc methname ~virt:true @@
         Typ.chain_arrow ~loc
           ([ Typ.var ~loc "inh"
-           ; Typ.use_tdecl tdecl ] @
+           ; Typ.var ~loc Naming.extra_param_name ] @
            (List.map typs ~f:Typ.from_caml) @
            [ Typ.var ~loc "syn" ])
       )
@@ -225,7 +225,7 @@ let make_interface_class_sig ~loc tdecl =
                     let ts =
                       let open Typ in
                       [ var ~loc "inh"
-                      ; use_tdecl tdecl ] @
+                      ; var ~loc Naming.extra_param_name ] @
                       (List.map ~f:from_caml args) @
                       [ var ~loc "syn" ]
                       |> chain_arrow ~loc

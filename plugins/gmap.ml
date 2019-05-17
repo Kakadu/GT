@@ -97,6 +97,7 @@ class g args tdecls = object(self: 'self)
          arrow ~loc (var ~loc "a") (var ~loc "b"))
   method trf_scheme_params = ["a"; "b"]
 
+  (*
   method! extra_class_sig_members tdecl =
     let loc = loc_from_caml tdecl.ptype_loc in
     if not (is_polyvariant_tdecl tdecl) then [] else
@@ -119,7 +120,7 @@ class g args tdecls = object(self: 'self)
           )
       ]
 
-
+      *)
 
   method on_tuple_constr ~loc ~is_self_rec ~mutal_decls ~inhe tdecl constr_info ts =
     Exp.fun_list ~loc
