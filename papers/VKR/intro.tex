@@ -1,59 +1,37 @@
 \section{Introduction}
 
 Фредерк Брукс (Frederic Brooks) в своей известной книге по инженерии
-программ  ``Мифический человекомесяц'' (``The Mythical Man-Month'')~\cite{MMM} охаректеризовал сущзность программирования следующим образом:
+программ  ``Мифический человеко-месяц'' (``The Mythical Man-Month'')~\cite{MMM} охарактеризовал сущность программирования следующим образом:
 
 \blockquote{``The programmer, like the poet, works only slightly removed from pure thought-stuff. Он строит свои замки в воздухе, из воздуха, творя только усилием воображения. Few media of
 creation are so flexible, so easy to polish and rework, so readily capable of realising grand conceptual structures. (As we shall see later, this very tractability has its own problems.)''}
 
-Действительно, нематериальность программ и гибкость их представления  призывает к структурированию; отсутствие подходящей структуры логком может привести к катастрофическим последствиям
-(как это случалось с некоторыми промыщленными проектами в прошлом). One of commonly used ways to bring a
-structure in software are \emph{data types}. Data types allow to describe the properties of data, what can and cannot be done, and to some extent they prescribe
-the semantics to data structures. Being kept in runtime, data types make it possible to implement meta-transformations by analysing types (\emph{introspection})
-or even creating new types on the fly (\emph{reflection}).
+Действительно, нематериальность программ и гибкость их представления  призывает к структурированию; отсутствие подходящей структуры легко может привести к катастрофическим последствиям
+(как это случалось с некоторыми промышленными проектами в прошлом). Одним из наиболее распространенных способов структурировать программы является использование \emph{типов данных}. Они позволяют описывать свойства данных; что можно с ними сделать, а что нельзя; а также в некоторой степени описывают семантикус структур данных. Если информация о типая данных присутствует во время работы программы, то становится возможным реализовать мета-преобразования путём анализа типов (\emph{интроспекция}) или путём создания новых типов данных на лету (\emph{рефлексия}).
 
-However, in statically typed languages, as a rule, types are completely erased after the compilation and do not retained in runtime. This has a huge advantage over
-dynamic typing as, first, programs do not need to inspect types at runtime anymore and, second, a whole class of bad runtime behaviours~--- type errors~---
-is eliminated. The other side of the coin, however, is that now some transformations, which in untyped languages can be implemented ``once and for all'',
-can not be typed and have to be re-implemented for each type of interest. One way to overcome this deficiency is to develop a more powerful type system in
-which more functions can be typed; as an example we may mention the support for \emph{ad-hoc} polymorphism in \textsc{Haskell} in the forms of type
-classes~\cite{TypeClasses} and type families~\cite{TypeFamilies}. However, due to the totality of type checking and fundamental undecidability results there
-will always be some ``good'' programs which cannot be typed. Another approach, \emph{datatype-generic programming}~\cite{DGP}, is aimed at developing techniques for
-implementation of practically important families of type-indexed functions using existing language features. For example, types can be encoded in a substrate
-language~\cite{Hinze,InstantGenerics,GenericOCaml}, or a part of type information can be saved for runtime~\cite{SYB,SYBOCaml}, or generic functions for a given
-type can be generated at compile-time automatically~\cite{Yallop,PPXLib}. The two approaches we mentioned are in fact complementary~--- the more powerful
-type system is the more means for datatype-generic programming the language can incorporate natively. For example, parametric polymorphism makes it possible
-to natively express many generic functions like length of list of arbitrary elements, etc.
+Однако, в статически типизированных языках, как правило, типы полностью стираются 
+после фазы компиляции и отсутсвуют во время исполнения. Статическая типизация обладает серьёзным преимуществом по сравнению с динамической, потому что программам
+не нужно инспектировать типы во время выполнения и больше количество плохих поведений программ -- ошибок типизации -- не случается. С другой стороны, некоторые преобразования, которые в динамических языках могли быть реализованы ``раз и навсегда'' не проходят проверку типов и должны быть перереализованы для каждого конкретного типа по-отдельности. Одни из подходов к преодолению этого недостатка является разработка более выразительной системы типов, где большее количество функций может быть протипизировано. Примером этому подходу будет поддержка перегрузки (\emph{ad hoc} полиморфизма) в языке Haskell в виде классов 
+типов~\cite{TypeClasses} и семейств типов~\cite{TypeFamilies}. Однако, по причине требования тотальности к алгоритму проверки типов и фундаментальной неразрешимости проблемы проверки типов, всегда будут существовать ``хорошие'' программы, которые
+не могут быть протипизированы. Другим подходом является \emph{обощенное программирование}~\cite{DGP} (\emph{datatype-generic programming}), целью которого является разработка методов для реализации практически важных семейств функций
+индексированных типами, использую имеющиеся возможности языка. Например, типы могут быть закодированы на внутреннем языке~\cite{Hinze,InstantGenerics,GenericOCaml}, либо часть информации о типах может быть сделана доступной во время исполнения, или 
+обобщенные функции для конкретного типа данных могут быть сгенерированы во время
+компиляции автоматически~\cite{Yallop,PPXLib}. Два похода, описанные нами, дополняют друг друга: чем более мощной является система типов, тем больше возможностей для обощенного программирования язык может предложить. Например, параметрический полиморфизм позволяет естественно выразить функцию для вычисления длины списка произвольных элементов и т.п.
 
-We present a generic programming library \textsc{GT}\footnote{\url{https://github.com/kakadu/GT/tree/ppx}} (\emph{Generic Transformers}), which has been in an
-active development and use since 2014. One of the important observations, which motivated the development of our framework, was that many generic functions
-can be considered as a modifications of some other generic functions. While our approach is generative~--- we generate generic functionality from type definitions~---
-it also makes possible for end users to easily derive variants of generated functions by redefining some parts of their functionality. This is achieved using
-a method-per-constructor encoding for concrete transformations, which resembles the approach of object algebras~\cite{ObjectAlgebras}.
+Мы представляем библиотеку для обобщенного программирования \textsc{GT}\footnote{\url{https://github.com/kakadu/GT/tree/ppx}} (\emph{Generic Transformers}), которая находится в активной разработке с 2014 года. Одним из важных наблюдений, которые спровоцировали разработку, является то, что многие обощенные функции можна рассматривать как модификации некоторых других обощенных функций. Наш подход, являясь генеративным (мы создаем функции на основе объявлений типов), также позволяет конечным пользователям легко получать новые преобразования видоизменяя некоторые части уже имеющихся. Это достигается путём кодирования конструкторов один к одному в методы классов, что несколько напоминает подход, называемый алгебрами объектов~\cite{ObjectAlgebras}.
 
-The main properties of our solution are as follows:
+Отличительным особенностями нашего подхода являются:
 
 \begin{itemize}
-\item each transformation is expressed in terms of a \emph{traversal function} and a \emph{transformation object}, which encapsulate the ``interesting part''
-  of the transformation;
-\item the traversal function is unique for given type and all transformation objects for the type are instances of a unique class;
-\item both the traversal function and the class are generated from type definition; we support regular ADTs, structures, polymorphic variants and predefined types;
-\item we provide a number of plugins which generate practically important transformations in the form of concrete transformation classes;
-\item the plugin system is extensible: end users can implement their own plugins.
+\item каждое преобразование выражается с помощью \emph{функции преобразования} и \emph{объекта преобразования}, которые содержат в себе ``интересные'' части преобразования;
+\item функция преобразования уникально для данного типа и всех объектов преобразования, которые являются образцами уникального класса;
+\item и функция преобразования, и класс генерируются из объявления типа; мы поддерживаем регулярные алгебраические типы данных, структуры, полиморфные вариантные типы и базовые заранее описанные типы;
+\item мы предоставляем несколько плагинов, для того, чтобы генерировать практически полезные преобразования в иде конкретных классов;
+\item система плагинов расширяема -- программист может реализовать свои собственные плагины.
 \end{itemize}
 
-The library we present is an inheritor of our earlier work~\cite{SYBOCaml} on implementation of ``Scrap Your Boilerplate'' approach~\cite{SYB,SYB1,SYB2}. However,
-our experience has shown, that the expressivity and extensibility of SYB is insufficient; in addition the uniform transformations, based solely on type discrimination, turned out to be
-inconvenient to use. Our idea initially was to combine combinator and object-oriented approaches~--- the former would provide means for parameterization, while the
-latter~--- for extensibility via late binding utilisation. This idea in the form of a certain design pattern was successfully evaluated~\cite{SCICO} and then reified
-in a library and a syntax extension~\cite{TransformationObjects}. Our follow-up experience with the library~\cite{OCanren} has (once again) shown some flaws in the
-implementation. The version we present here is almost a complete re-implementation with these flaws fixed.
+Представленная в данной работе библиотека является логическим продолжением более ранней работы~\cite{SYBOCaml} на тему реализации подхода ``Scrap Your Boilerplate''~\cite{SYB,SYB1,SYB2}. Однако, опыт показал, что выразительность и расширяемость SYB недостаточна, к тому же преобразования, которые зависят только от типа, не очень удобно использовать. Изначальной идеей данной работы было совмещение комбинаторов и объектно-ориентированного подхода: первый позволит делать реализовать параметризацию удобным образом, а второй предоставит расширяемость за счет позднего связывания (late binding). Идея в виде конкретного шаблона проектирования была успешно апробирована~\cite{SCICO}, а затем реализована в виде бибилиотеки и синтаксического расширения~\cite{TransformationObjects}. Последующий опыт, связанный с разработкой библиотеки~\cite{OCanren}, снова указал на некоторые недостатки в реализации. В данной работе представляется почти полностью переписанная реализация, где найденные недостатки были исправлены.
 
-The rest of the paper is organised as follows. In the next section we give an informal, example-driven exposition of
-the approach we use. Then we describe the implementation in more details, highlighting some aspects which we find important or
-interesting. In the following section we consider some examples, implemented with the aid of the library. Related works
-section observes the relevant approaches and frameworks and compares them to ours. The final section discusses the directions for
-future development.
+Оставшаяся часть работы организована следующим образом. В следующем разделе \ref{sec:expo} мы неформально опишем наш подход с помощью примеров. Затем \ref{sec:implementation} опишем реализацию в деталях, подчеркнув аспекты, которые считаем важными или интересными. Далее представим несколько примеров, реализованных \ref{sec:examples} с помощью нашей бибилиотеки. В разделе \ref{sec:relatedworks} обсудим аналогичные подходы и библиотеки и сравнимся с ними. В последнем разделе \ref{sec:futurework} укажем направления для дальнейшего развития.
 
-%Acknowledgements ...
 

@@ -1,4 +1,9 @@
 *.bak
 *.log
 *.out
+*.aux
+*.bbl
+*.blg
+*.pdf
+*.pag
 

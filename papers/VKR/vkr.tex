@@ -16,13 +16,16 @@
 \usepackage{underscore}           % Only needed if you use pdflatex.
 
 \usepackage{marginnote}
+
+
+\usepackage[margin=1cm]{geometry}
+
 \usepackage{booktabs}
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{mathrsfs}
 \usepackage{mathtools}
 \usepackage{multirow}
-\usepackage{listings}
 \usepackage{indentfirst}
 \usepackage{verbatim}
 \usepackage{amsmath, amssymb}
@@ -56,6 +59,7 @@
 \setsansfont{CMU Sans Serif}
 \setmonofont{CMU Typewriter Text}
 
+\usepackage[final]{listings}
 
 \lstdefinelanguage{ocaml}{
 keywords={@type, function, fun, let, in, match, with, when, class, type,
@@ -128,7 +132,7 @@ Dmitry Boulytchev
 % \input{exposition.tex}
 % \input{impl.tex}
 % \input{examples.tex}
-% \input{related.tex}
+\input{related.tex}
 % \input{conclusion.tex}
 
 \nocite{*}
