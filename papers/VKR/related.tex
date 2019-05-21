@@ -20,15 +20,13 @@
 
 \cd{ppx\_deriving} является наипростейшим подходом: объявления типов данных отображаются один к одному в рекурсивные функции, представляющие конкретный вид преобразования. Это наиболее эффективная реализация (функции вызываются напрямую, без позднего связывания), но нерасширяемая. Если пользователю понадобится слегка модифицировать сгенерированную функцию, то он должен будет полность скопировать реализацию функции и изменить её. Количество работы по программированию нового преобразования может сущетсвенно увеличиться, если тип данных будет видоизменяться во время цикла разработки.
 
-In \cd{ppx\_traverse} extensible transformations are represented as objects; unlike our case, method-per-type approach is used. In addition 
-\cd{ppx\_traverse} does not make use of inherited attributes, thus some transformations like equality or comparison are not representable.
+В \cd{ppx\_traverse} расширяемые трансформации также представлены как объекты. В отличие от нашего подхода, там не используется кодирование кострукторов и методов один к одномую. К тому же \cd{ppx\_traverse} не использует наследуемые атрибуты, следовательно некоторые преобразования, такие как проверка на реавенство и сравнение, невыразимы. 
 
-\textsc{Visitors}, on the other hand, explores a similar to ours object-oriented approach, in which many decisions, rejected by us, were taken (and vice versa). Here
-we summarise the main differences:
+\textsc{Visitors}, с другой стороны, использует сходный с нашим подход. в котором были приняты многие решения, отвергнутые нами, и наоборот.
+Ниже мы подытожим главные различия:
 
 \begin{itemize}
-   \item \textsc{Visitors} is excessively object-oriented~--- in order to use it one needs to instantiate some object and call proper method. In our case as long as
-     only predefined features are required one can use a more native combinatorial interface.
+   \item \textsc{Visitors} полностью объектно-ориентированы. Чтобы воспользоваться преобразованием необходим создать некоторый объект и вызвать нужный метод. В нашем случае, если используются возможности, предусмотренные заранее, то можно использовать более естественный комбинаторный подход.
      
    \item \textsc{Visitors} implements a number of useful transformations in an \emph{ad-hoc} manner; in our case all transformations are instances of the
      same generic scheme. It is possible to combine different transformations via inheritance as long as the types of underlying scheme unify. We also argue, that
