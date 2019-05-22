@@ -1,15 +1,10 @@
-\section{Future Work}
+\section{Заключение}
 \label{sec:futurework}
 
-There are a few possible directions for future work. First, in this paper we did not address the performance issues. As we represent
-the transformations in a very generic form with many levels of indirection, obviously, the transformations, implemented with
-our framework, are at disadvantage in comparison with hard coded ones in terms of performance. We assume that the performance of transformations
-can be essentially improved by applying some techniques like staging~\cite{Staged} or, perhaps, object-specific optimisations.
+Существует несколько возможны направлений для дальнейшего развития проекта. Во-первых, в данной работе мы не касались вопросов производительности. Мы представляем преобразования в очень обощенном виде, с несколькими слоями косвенности. Очевидно, что преобразования, реализованные с помощью нашей библиотеки будут работать медленнее, чем написанные вручную. Мы предполагаем, что производительность может быть
+улучшено с помощью, так называемого, staging~\cite{Staged}или, возможно, с помощью оптимизаций, специфичных для объектов.
 
-Another important direction is supporting more kinds of type declarations, in the first hand, GADTs and non-regular types. Although we have some
-implementation ideas for this case, the solution we came up with so far makes the interface of the whole framework too cumbersome to use even for
-simple cases.
+Другим важным направлением является поддержка большего разнообразия объявлений типов, а именно GADTs и нерегулярных типов. Хотя уже сделаны некоторые наработки, получившиеся решение делает интефейс всей бибилотеки чересчур сложным даже для простых случаев.
 
-Finally, the typeinfo structure we generate can be used to mimic the \emph{ad-hoc} polymorphism as it contains the implementation of
-type-indexed functions. This, together with some proposed extensions~\cite{ModularImplicits}, can open interesting perspectives.
+Наконец, структура с информацией о типе, которую мы генерируем, может быть использована, чтобы симитировать \emph{ad-hoc} полиморфизм, так как они содержит реализацию функций, индексированных типами. Это в сумме с недавно предложенными расширениями~\cite{ModularImplicits} может открыть интересные перспективы.
 

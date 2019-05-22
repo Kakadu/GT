@@ -28,24 +28,16 @@
 \begin{itemize}
    \item \textsc{Visitors} полностью объектно-ориентированы. Чтобы воспользоваться преобразованием необходим создать некоторый объект и вызвать нужный метод. В нашем случае, если используются возможности, предусмотренные заранее, то можно использовать более естественный комбинаторный подход.
      
-   \item \textsc{Visitors} implements a number of useful transformations in an \emph{ad-hoc} manner; in our case all transformations are instances of the
-     same generic scheme. It is possible to combine different transformations via inheritance as long as the types of underlying scheme unify. We also argue, that
-     in our framework the implementation of user-defined plugins is much easier.
+   \item \textsc{Visitors} реализуют некоторое количество преобразований в специфичной ad-hoc манере. В нашем случае все преобразования принадлежат некоторой обощенной схеме. Различные трансформации можно скомбинировать с помощью наследования, если типы в схеме унифицируются. Мы также заявляем, что в нашей бибилиотека реализация ползовательски плагинов с трансформациями проще. 
      
-   \item Following SYB, \textsc{Visitors} takes a type-discriminating route: for each type of interest (including the built-in ones) there is a dedicated
-     transformation method in each object, representing a transformation. While this solution indeed adds some flexibility, we firmly oppose it, since it
-     breaks the encapsulation: inspecting the methods of a transformation (which cannot be hidden in a module signature) one can retrieve some
-     information about the implementation of encapsulated types. Even worse, the data structures of abstract types can be manipulated in an unprescribed
-     manner using the public type-transforming interface.
+   \item Как и  SYB, \textsc{Visitors} поддерживают вказание способа трансформации для входящих в структуру данных типов: для каждого типа присутствует метод в объекте, представляющий трансформацию. Хотя такое представление добавляет некоторой гибкости мы осознанно отказывается от него, так как оно позволяет преодолеть инкапсуляционный барьер: изменяя методы преобразования (которые не могут быть скрыты в сигнатуре), можно получить некоторую информацию об внутреннем реализации инкапсулированной структуры данных. Более того, абстрактные структуры данных могут быть изменены способом, не предусмотренным публичным интерфейсом
 
-   \item In our case the type parameters for transformation classes have to be specified by an end user. With \textsc{Visitors} this burden is offloaded to the
-     compiler with the aid of some neat trick. However, this trick makes it impossible to use \textsc{Visitors} syntax extension in module signatures. There is no
-     such problem in our case~--- our framework can be equally used in both implementation and interface files.
+   \item В нашем случае типовые параметры классов, представляющих трансформацию, должны быть указаны пользователем. В \textsc{Visitors} это работа возлагается на плечи компилятора, с помощью оригинального трюка. Однако, он не позволяет использовать \textsc{Visitors} в сигнатурах модулей. В нашем случае нет никаких проблем: поддерживается работа и с файлами реализации, и с файлами сигнатур.
 
-   \item \textsc{Visitors} in its current state\footnote{The latest available version is 20180513} does not support polymorphic variants.
+   \item \textsc{Visitors} на сегодняшний день \footnote{Последней доступной версией на данный момент является 20180513} не поддерживает полиморфные вариантные типы.
    
-   \item \textsc{GT} supports arbitrary type constructor applications but \textsc{Visitors} in its current state doesn't (both in monomorphic and polymorphic mode).
-     For instance, the following example doesn't compile:
+   \item \textsc{GT} поддержает произвольные применения конструкторов типов, а  \textsc{Visitors} -- нет (и в мономорфном, и в полиморыном режиме).
+     Например, данный пример не компилируется:
      
    \begin{lstlisting}
       type ('a,'b) alist = Nil | Cons of 'a * 'b
@@ -55,14 +47,14 @@
       [@@deriving visitors { variety = "map"; polymorphic = false }]
    \end{lstlisting}
    
-   Moreover, adding an extra construct doesn't solve the problem:
+   Более того, добавление искусственного конструктора не решает проблему:
    
     \begin{lstlisting}
        type 'a list = L of ('a, 'a list) alist [@@unboxed]
        [@@deriving visitors { variety = "map"; polymorphic = false }]
     \end{lstlisting}
     
-    There is also an issue with type aliases in polymorphic mode (monomorphic part of \textsc{Visitors} compiles successfully):
+    Также присутствуют сложности с переименованиями (aliases) типов в полиморфном режимеe (мономорфная часть библиотеки \textsc{Visitors} компилируется успешно):
     
     \begin{lstlisting}
        type ('a,'b) t = Foo of 'a * 'b (* OK *)
@@ -72,8 +64,6 @@
        [@@deriving visitors { variety = "map"; name="yyy"; polymorphic = true }]
     \end{lstlisting}
     
-    The generated code can be fixed manually by removing explicit polymorphic type annotations from objects' methods, which leads to the code
-    very similar to the one generated by \textsc{GT}. From these we can conclude that \textsc{GT} can be seen an a reimplementation of polymorphic
-    mode of \textsc{Visitors} where more type declarations compile successfully.
+    Сгенерированный код можно исправить вручную, путём удаления типовых аннотаций для явного полиморфизма (explicit polymorphism) у методов, что приведет к коду, который очень напоминает генерируемый  \textsc{GT}. Из этого мы можем заключить, что на \textsc{GT} можно смотреть как перереализацию полиморфного режима бибилотеки  \textsc{Visitors}, где большее количество объявлений типов компилируется корректно.
     
 \end{itemize}
