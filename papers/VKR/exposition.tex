@@ -134,10 +134,11 @@
 Но стоило ли это того? В действительности, в этом примере мы добились не очень большого переиспользования кода путём добавления
 большого количества абстракций. Итоговый код получился по размеру даже больше исходного.
 
-We argue that in this particular case the transformations were not general enough. In order to justify our approach we consider another, more optimistic scenario. It is
-well-known, that many transformations can be represented (and for a good reason) using \emph{catamorphisms}, or ``folds''~\cite{Fold,Bananas,CalculatingFP}. Technically, to
-implement regular catamorphism we would need to abstract the type ``\lstinline{expr}'' of itself to make it a proper functor, but for now we stick with a more
-lightweight version:
+Мы утверждаем, что преобразования в данном конкретном случае были недостаточно обощенные. Чтобы оправдать описанный подход,
+давайте рассмотрим более оптимистичный сценарий. Широко известно, что многие трансформации могут быть представлены 
+(по понятным причинам) как \emph{катаморфизмы}, т.е. как ``свёртки''~\cite{Fold,Bananas,CalculatingFP}. 
+Формально, чтобы определить канонический катаморфизм нам нужно абстрагировать тип ``\lstinline{expr}'' 
+от самого себя и описать функтор, но здесь мы воспользуемся более легковесным решением:
 
 \begin{lstlisting}
    class [$\iota$] $\inbr{fold_{expr}}$ (fself : $\iota$ -> expr -> $\iota$) =
@@ -148,8 +149,8 @@ lightweight version:
    end
 \end{lstlisting}
 
-This implementation simply threads the argument ``\lstinline{i}'' through all nodes of an expression and returns it unchanged. This seems pretty useless at a first
-glance. However, if we modify this default behaviour a little, we can obtain something useful:
+Эта реализация просто передает ``\lstinline{i}'' сквозь все узлы трансформируемого значения, что выглядит довольно бесполезно на первый взгляд.
+Однака, слегка изменив поведение, можно получить кое-что полезное:
 
 \begin{lstlisting}
    let fv e =
@@ -160,11 +161,14 @@ glance. However, if we modify this default behaviour a little, we can obtain som
          ) [] e
 \end{lstlisting}
 
-This function calculates the list of all free variables in an expression (as there can be no binders this is simply the list of all variables). Immediate object we
-construct here inherits from the ``useless'' ``$\inbr{fold_{expr}}$'' and redefines only one method~--- for variables. All other code makes exactly what we need~---
-``$\inbr{gcata_{expr}}$'' traverses the expression, and all other methods of transformation object accurately pass the list of variables through. So, we indeed
-managed to implement some interesting transformation with a very small modification of existing code (provided that ``$\inbr{fold_{expr}}$'' class was already supplied).
-To avoid the impression that we carefully prepared everything to implement this particular example we can show another one:
+Эта функция создает список всех свободных переменных в выражении, а так как в языке выражений нет способа связывать переменные, 
+то это просто список всех переменных в терме. Объект, который мы сконструировали, наследуется от ``бесползеного'' класса 
+``useless'' ``$\inbr{fold_{expr}}$'' и переопределяет только один метод -- метод для обработки переменных.
+Весь остальной код уже работает так, как нам нужно~--- ``$\inbr{gcata_{expr}}$'' обходит выражение, 
+а остальные метода объекта аккуратно передают построенный список дальше.
+Таким образом, мы смогли реализовать интересное преобразование с помощью очень малой модификации существующего кода, 
+предоставленного уже имеющимся классом ``$\inbr{fold_{expr}}$''. Чтобы избежать впечатления, что мы аккуратно подготавливались к
+представлению именно этого примера, мы покажем ещё один:
 
 \begin{lstlisting}
    let height e =
@@ -175,26 +179,25 @@ To avoid the impression that we carefully prepared everything to implement this 
          ) 0 e
 \end{lstlisting}
 
-Now we calculated the height of an expression. We used the same ``$\inbr{fold_{expr}}$'' class as a base for another immediate object; we redefined the method for
-binary operators, which now calculates the heights of both sub expressions, takes the maximum and adds one. 
+Здесь мы вычисляем высоту дерева выражения. Мы используем тот же самый класс ``$\inbr{fold_{expr}}$'' как базовый для другого самостоятельно объекта, переопределяем метод для бинарного оператора, который теперь будет вычислять высоты поддеревьев, выбирать из них максимальную высоту и прибавлять единицу.
 
-Another commonly recognised generic feature is ``map'':
+Одной из других всеми известных обощенных функций является ``map'':
 
 \begin{lstlisting}
-   class $\inbr{map_{expr}}$ fself =
-   object inherit [unit, expr] $\inbr{expr}$
+   class $\inbr{map_{expr}}$ fself = object 
+     inherit [unit, expr] $\inbr{expr}$
      method $\inbr{Var}$ _ x = Var x
      method $\inbr{Const}$ _ n = Const n
      method $\inbr{Binop}$ _ o l r = Binop (o, fself () l, fself () r)
    end
 \end{lstlisting}
 
-Again, as type ``\lstinline{expr}'' is not a functor, all we can do with ``$\inbr{map_{expr}}$'' is copying. However, by inheriting from it we
-can provide more transformations:
+Опять, так как нам не известно, что ``\lstinline{expr}'' -- это функтор, то всё, что мы можем сделать в фукнции ``$\inbr{map_{expr}}$'' --- 
+это копированиею. Однако, отнаследовавшись от этого класса, мы может получить новый вид преобразований:
 
 \begin{lstlisting}
-   class simplify fself =
-   object inherit $\inbr{map_{expr}}$ fself
+   class simplify fself = object 
+     inherit $\inbr{map_{expr}}$ fself
      method $\inbr{Binop}$ _ o l r =
        match fself () l, fself () r with
        | Const l, Const r -> Const ((op o) l r)
@@ -202,19 +205,19 @@ can provide more transformations:
    end
 \end{lstlisting}
 
-This class performs a constant folding: if both arguments of a binary operator are reduced (by the same transformation) to constants, then in
-performs the operation. The function ``\lstinline{op}'' is defined elsewhere; it returns an integer function for evaluating given binary operator. One more:
+Данный класс проводит упрощение выражения: если оба аргумента бинарной операции вычисляются в константу той же самой трансформацией, тогда 
+мы может произвести операцию сразу. Функция ``\lstinline{op}'' объявлена где-то ещё, она возращает функцию, которая будет производить вычисление данного бинарного опреатора.
 
+Вот ещё один пример:
 
 \begin{lstlisting}
-   class substitute fself state =
-   object inherit $\inbr{map_{expr}}$ fself
+   class substitute fself state = object 
+     inherit $\inbr{map_{expr}}$ fself
      method $\inbr{Var}$ _ x = Const (state x)  
    end
 \end{lstlisting}
 
-This one substitutes variables in an expression with their values in some state, represented as function ``\lstinline{state}''. Two last
-classes can be seamlessly combined to construct an evaluator:
+Здесь мы выполняем подстановку переменных в выражении на значения, определенные в некотором состоянии, представленном функций ``\lstinline{state}''. Два класса, объявленных выше могут быть скомбинированы для получения интепретатора выражений:
 
 \begin{lstlisting}
    class eval fself state =
@@ -227,28 +230,21 @@ classes can be seamlessly combined to construct an evaluator:
      fix (fun fself i e -> $\inbr{gcata_{expr}}$ (new eval fself state) i e) () e  
 \end{lstlisting}
 
-In all these examples we, starting from some very common generic feature, implemented all needed transformations with a very little efforts (modulo
-the verbose \textsc{OCaml} syntax for objects and classes). In each case we needed to override only one method, and we used a single per-type generic
-function. On the other hand we dealt with a very simple type~--- for example, it was not even polymorphic, and supporting polymorphism might have
-its own issues. In the rest of the paper we show that, indeed, the sketch we presented here can be extended to a generic programming
-framework, in which all the components can be synthesised from type definitions. In particular, our approach provides the full support for:
+Во всех примерах мы выбрали достоаточно стандартные преобразования и можно сказать, что реализовали всё достаточно малыми усилиями,
+если закрыть глаза на несколько многословный синтаксис классов и объектов в  \textsc{OCaml}. В каждом случае было необходимо переопределать
+только один метод и воспользоваться функцией, однозначно получаемой по типу. 
+С другой стороны, мы работали с очень просто устроенным типом, он даже не был полиморфным, а моддержка полиморфизма может привести к 
+специфифчески мпроблемам. В оставшейся части статьи мы покажем, что идеи, представленные выше, может быть расширены до подхода к обощенному программированию, где все компоненты могут быть синтезированы из объявления типа. В частности, наш подход предоставляет полную поддержку:
 
 \begin{itemize}
-\item Polymorphism.
-\item Type constructor application.
-\item Mutual recursion. While there is no problem with implementation of hard-coded generic transformations, the implementation of \emph{extensible} ones
-  requires extra efforts.
-\item Polymorphic variant types. It includes the seamless integration via class inheritance of all features
-  for polymorphic variant types when these types are combined into the one.
-\item Separate compilation: we can generate code from type definitions for a module separately with no lookup into
-  modules this one depends on.
-\item Encapsulation: we support module signatures, including abstract and private type declarations. Generic functions, implemented for
-  abstract types, can be safely used outside the module, but can be neither modified nor used to ``peep'' at the internal structure of
-  the type.  
+\item полиморфизма;
+\item применения типовых функций;
+\item взаимной рекурсии, где поддержка воистину \emph{расширяемых} преобразований потребует некоторых усилий;
+\item полиморфных вариантных типов, с которыми будет необходимо позаботиться о гладкой интеграции возможностей полиморфных вариантом и наследования классов;
+\item рздельной компиляции --- мы можем сгенерировать код по определениям типов не заглядывая внутрь модулей, от которых зависит обрабатываемый тип;
+\item инкапсуляции, а именно поддержки сигнатур модулей, включая абстрактные типы и приватные определения. Обощенные функции для абстрактных типов могут использоваться из вне модуля, но не позволят инспектировать или изменять содержимое абстрактного типа.
 \end{itemize}
 
-We also address some performance issues~--- as one could notice, in all preceding examples we created a whole bunch of \emph{identical} objects during a
-transformation (one per each node of a data structure); as we will see, this can be avoided via memoization. Finally, our framework provides a plugin system which can be
-used to generate a number of useful transformations (like ``\lstinline{show}'', ``\lstinline{fold}'' or ``\lstinline{map}''). The plugin system is
-extensible as well~--- end users can implement their own plugins with a very little amount of extra effort since a large part of their functionality (the traversal
-function and virtual transformation class) is already supplied by the framework. 
+Что касается вопросов производительности, то как Вы могли заметить, во всех примерах мы создалвали большое количество 
+\emph{идентичных} объектов во время преобразования (под одному на каждый узел структуры данных). Далее мы увидим, что с этим можно побороться
+с помощью мемоизации. Наконец, наш подход предоставляет система плагиноы, которые могут быть использованы для генерации большого количества преобразований, как, например, ``\lstinline{show}'', ``\lstinline{fold}'' или ``\lstinline{map}''. Система плагинов расширяема, т.е. пользователи могут  реализовать их собственные плагины с помощью небольших усилий, так большая часть функциональности по обходу структуры данных предоставялется библиотекой. 

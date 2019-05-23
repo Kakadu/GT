@@ -1,27 +1,26 @@
 \section{Implementation}
 \label{sec:implementation}
 
-The main components of our solution are syntax extensions (both in terms of \cd{camlp5}~\cite{Camlp5} and \cd{ppxlib}~\cite{PPXLib}), a runtime library and
-a plugin system. The syntax extensions process type definitions, attributed by an end user, and generate the following entities:
+Основными компонентами нашего решения являются синтаксические расширения (и для \cd{camlp5}~\cite{Camlp5}, и для  \cd{ppxlib}~\cite{PPXLib}), библиотека времени исполнения и система плагинов. Синтаксичесое расширение касается объявлений типов, аннотированных пользователем, и генерирует следующие сущности:
+
 
 \begin{itemize}
-\item a transformation function (one per a type);
-\item a virtual class which is used as a common ancestor for all concrete transformations (one per a type);
-\item a number of concrete classes (one per requested plugin);
-\item a \emph{typeinfo} structure, which incorporates a type-specific information like the transformation function and a bundle of
-  plugin-generated concrete functions, represented as an immediate object.
+\item обощенная функция трансформации (одна на каждый тип);
+\item виртуальный класс, который используется как общий предок для всех трансформаций (один на каждый тип);
+\item некоторое количество конкретных классов (по одному на каждый вид плагина);
+\item структуру данных \emph{typeinfo}, котора содержит в себе информацию, специфичную для данного типа, а именно обощенную функцию трансформации и набор функций трансформации, которые порождаются плагинам. Всё представлено как самостоятельный объект.
 \end{itemize}
 
-We support the majority of variants in the right-hand side of type definitions with the following limitations:
+Мы поддерживаем большинство вариантов в правой части объявлений типов со следующими ограничениями:
 
 \begin{itemize}
-\item only regular algebraic data types are supported; GADTs are treated as simple algebraic data types;
-\item constraints are not taken into account;
-\item ``\lstinline{nonrec}'' definitions, object and module types are not supported;
-\item extensible datatypes (``\lstinline{...}''/``\lstinline{+=}'') are not supported.
+\item поддерживаются только регулярные алгебраические типы данных; GADT'ы обрабатываются как обычные алгебраические типы;
+\item констрейты не учитываются;
+\item объекты, модули и типы с ключевым словом ``\lstinline{nonrec}'' не поддерживаются;
+\item расширяемые типы данных (``\lstinline{...}''/``\lstinline{+=}'') не поддерживаются.
 \end{itemize}
 
-For example, for a type ``\lstinline{t}'' with requested plugin ``\lstinline{show}'' the structure with the following skeleton is generated (``$\dots$'' stands for the parts we omit for now):
+К примеру, если к типу ``\lstinline{t}'' применить плагин ``\lstinline{show}'', то в файле реализации сгенерируются следующие сущности (``$\dots$'' обзначают части, объяснение которых мы пока опускаем):
 
 \begin{figure}[t]
   \center
@@ -29,20 +28,20 @@ For example, for a type ``\lstinline{t}'' with requested plugin ``\lstinline{sho
     \hline
     \multicolumn{2}{c}{\cd{camlp5} version}\\
     \hline
-    \lstinline|@type ... $[$ with  $p_1, p_2, \dots$ $]$| & a syntax construct to generate a support for a type \\
-                                                         & with plugins $p_1, p_2, \dots$; mutually recursive definitions \\
-                                                         & are supported \\
-    \lstinline|@$typ$| & the name for the virtual class for type $typ$ \\
-    \lstinline|@$plugin$[$typ$]| & the name for a plugin class for type $typ$ and \\
-                                 & plugin $plugin$\\
+    \lstinline|@type ... $[$ with  $p_1, p_2, \dots$ $]$| & синтаксическая конструкция для обработки типа  \\
+                                                         & с плагинами $p_1, p_2, \dots$; взаимно рекурсвные \\
+                                                         & типы также поддерживаются  \\
+    \lstinline|@$typ$| & название виртуального класса для типа $typ$ \\
+    \lstinline|@$plugin$[$typ$]| & имя класса плагина для типа $typ$ и \\
+                                 & плагина $plugin$\\
     \hline
         \multicolumn{2}{c}{\cd{ppxlib} version}\\
     \hline
-    \lstinline|type ... = ...|  & a syntax construct to generate a support for a type \\
-    \lstinline|and  ... = ...|  & with plugins $p_1, p_2, \dots$ \\
+    \lstinline|type ... = ...|  & синтаксическая конструкция для обработки типа  \\
+    \lstinline|and  ... = ...|  & с плагинами $p_1, p_2, \dots$ \\
     \lstinline|[@@deriving gt ~options:{ $p_1, p_2, \dots$}]|
   \end{tabular}
-  \caption{Extended syntax constructs}
+  \caption{Конструкции расширенного синтаксиса}
   \label{syntax}
 \end{figure}
 
@@ -68,108 +67,104 @@ For example, for a type ``\lstinline{t}'' with requested plugin ``\lstinline{sho
    }
 \end{lstlisting}
 
-Using the typeinfo structure ``\lstinline{t}'' we can mimic the type-indexed nature of concrete transformations:
+С помощью структуры ``\lstinline{t}'' с информацией о типе мы можем симитировать фукнции трансформаций, индексированные типами :
 
 \begin{lstlisting}
    let transform typeinfo = typeinfo.gcata
    let show      typeinfo = typeinfo.plugins#show
 \end{lstlisting}
 
-The function ``\lstinline{transform(t)}'' is a top-level transformation function, which can be instantiated for any supported type ``\lstinline{t}''. On the
-Figure~\ref{syntax} we describe the concrete constructs, implemented by the syntax extensions. Note, the concrete way of encoding names
-for classes and transformation function (represented above as $\inbr{...}$) is not important as long as \cd{camlp5} is
-used since it provides corresponding syntax extensions.
+Функция ``\lstinline{transform(t)}'' -- это функция верхнего урочня из библиотеки, которая может быть инстанциирована для любого поддерживаемого типа  ``\lstinline{t}''. На рисунке~\ref{syntax} мы описываем конкретные синтаксические конструкции, реализованные как синстаксическое расширение. Обратите внимание, что конкретное представление имен для классов и функций трансформации (представленных выше как$\inbr{...}$) является несущественными пока используется \cd{camlp5}, так как предоставляется соответсвующее синтаксическое расширение.
 
-\subsection{Types of Transformations}
+\subsection{Типы трансформаций}
 
-The design of the library is based on the idea to describe transformations (e.g. catamorphisms~\cite{Bananas}) in terms of attribute grammars~\cite{AGKnuth,AGSwierstra,ObjectAlgebrasAttribute}.
-In short, we consider only the transformations of the following type
+Дизайн бибилотеки основана на идеи описания катаморфизмов~\cite{Bananas} с помощью атрибутных 
+грамматик~\cite{AGKnuth,AGSwierstra,ObjectAlgebrasAttribute}.
+Вкратце, мы рассматриваем только трансформации следующего типа
 
 \[
 \iota \to t \to \sigma
 \]
 
-where $t$ is the type of a value to transform, $\iota$ and $\sigma$~--- types for \emph{inherited} and \emph{synthesised} attributes. We do not use attribute
-grammars as a mean to describe the algorithmic part of transformations; we only utilise their terminology to describe the types. 
+где $t$ -- это тип, значения которого мы преобразуем, $\iota$ и $\sigma$~--- типы \emph{наследуемых} и \emph{синтезируемых} атрибутов. 
+Мы не будем исползовать атрибутные грамматики, чтобы описывать алгоритмическую часть трансформаций, мы только переиспользуем терминологию для описывания типов. 
 
-When the type under consideration is parameterised, the transformation becomes parameterised as well. From now on we will use a convention to
-denote $\left\{...\right\}$ multiple occurrences of a an entity inside the brackets. Under this convention we may stipulate the generic form of
-any transformation, representable with the aid of our library, as
+Если рассматриваемый тип является параметрическим, то преобразование тоже будет параметрическим. Далее мы будет обозначать с помощью
+$\left\{...\right\}$ множетсвенное вхождение сущности в скобках. С помощью такой нотации мы сможем описать обощенную форму преобразований, представимых с помощью нашей бибилотеки, как
 
 \[
   \left\{\iota_i \to \alpha_i \to \sigma_i\right\}\to\iota \to\left\{\alpha_i\right\}\;t \to \sigma
 \]
 
-Here $\iota_i\to\alpha_i\to\sigma_i$ is an argument-transforming function for the type parameter $\alpha_i$. In general the argument-transforming functions operate on
-inherited values of different types and return synthesised values of different types. The common ancestor class in turn is massively polymorphic: for an $n$-parametric
-type it receives $3(n+1)$ type parameters:
+Здесь $\iota_i\to\alpha_i\to\sigma_i$ явяется фукнций-преобразованием для типового параметра $\alpha_i$. В общем, фукнции-трансформации структуры данных действуют на наследуемые атрибуты и конкретные значения и возвращают синтезируемые атрибуты для различных типов. Общий для всех преобразований класс-предок для $n$-параметрического типа имеет $3(n+1)$ типовых параметров:
 
 \begin{itemize}
-\item a triplet $\iota_i$, $\alpha_i$, $\sigma_i$ for each type parameter $\alpha_i$, where $\iota_i$ and $\sigma_i$ are type variables for inherited and
-  synthesised attributes for the transformation of $\alpha_i$;
-\item a pair of type variables $\iota$ and $\sigma$ for inherited and synthesised attributes for the type itself;
-\item an extra type variable $\epsilon$, which is inferred to ``\lstinline|$\{\alpha_i\}$ t|'' for non-polymorphic variant types and to
-  an \emph{open} version ``\lstinline|[> $\{\alpha_I\}$ t]|'' for polymorphic variants (see Section~\ref{pv}).
+\item тройка $\iota_i$, $\alpha_i$, $\sigma_i$ для каждого типового параметра $\alpha_i$, где $\iota_i$ и $\sigma_i$ --- это типовые переменные для наследуемого и синтезированного атрибутов для преобразования  $\alpha_i$;
+\item пара дополнительных типовых переменных $\iota$ и $\sigma$ для представления наследуемого и синтезрированного атрибутом трансформируемого типа;
+\item дополнительная типовая переменная$\epsilon$, которая приравнивается к ``\lstinline|$\{\alpha_i\}$ t|'' для типов отличных от полиморфных вариантные, и приравнивается к \emph{открытому} типу ``\lstinline|[> $\{\alpha_i\}$ t]|'' для полиморфных вариантных типов (подробнее в 
+разделе~\ref{pv}).
 \end{itemize}
 
-For example, if we have a two-parametric type \lstinline{($\alpha$, $\beta$) t} the head of common ancestor class definition will look like
+Например, если нам дан двупараметрический тип \lstinline{($\alpha$, $\beta$) t}, то заголовком общего класса-предка будет 
 
 \begin{lstlisting}
   class virtual [$\iota_\alpha$, $\alpha$, $\sigma_\alpha$, $\iota_\beta$, $\beta$, $\sigma_\beta$, $\iota$, $\epsilon$, $\sigma$] $\inbr{t}$
 \end{lstlisting}
 
-The concrete transformations inherit from the common ancestor class and, possibly, instantiate some of its type parameters to a more
-specific types. Additionally, concrete classes receive a number of functional arguments:
+Кокретные преобразования будут наследоваться от этого класса и, возможно, кокретизировать нектоорые из типовых параметров.
+Дполпнительно, конкретные классы получают несколько аргументов-функций:
 
 \begin{itemize}
-\item $n$ argument-transforming functions: \lstinline|f$_{\alpha_i}$ : $\iota_i$ -> $\alpha_i$ -> $\sigma_i$|;
-\item a function to implement open recursion: \lstinline|fself : $\iota$ -> $\epsilon$ ->  $\sigma$|.
+\item $n$ функций, преобразующих типовые параметры: \lstinline|f$_{\alpha_i}$ : $\iota_i$ -> $\alpha_i$ -> $\sigma_i$|;
+\item функция для реализации открытой рекурсии: \lstinline|fself : $\iota$ -> $\epsilon$ ->  $\sigma$|.
 \end{itemize}
 
-For example, for the same type as above and a transformation ``\lstinline{show}'' the header of concrete class looks like
+Например, для типа, упомянтого выше и преобразования ``\lstinline{show}'' заголовок конкретного лкасс будет выглядеть как
 
 \begin{lstlisting}
   class [$\alpha$, $\beta$, $\epsilon$] $\inbr{show_t}$ 
     (f$_\alpha$ : unit -> $\alpha$ -> string)
     (f$_\beta$ : unit -> $\beta$ -> string)
     (fself : unit -> $\epsilon$ -> string) =
-  object inherit [unit, $\alpha$, string, unit, $\beta$, string, unit, $\epsilon$, string] $\inbr{t}$
+  object 
+    inherit [unit, $\alpha$, string, unit, $\beta$, string, unit, $\epsilon$, string] $\inbr{t}$
     $\dots$
   end 
 \end{lstlisting}
 
-Note, we maintain these conventions for all types although for some of them some of components are superfluous: for example, ``\lstinline{fself}''
-is needed only for recursive types. The explanation for this decision is simple: when we \emph{use} a type we generally do not know its
-definition. Thus, in order to support separate compilation the interfaces of all entities we generate must have identical structure.
+Обратите внимание, что мы поддерживаем это коглашение для всех типов, хотя для некоторых типов некоторые компоненты могут быть излишни, например, ``\lstinline{fself}''
+нужен только для рекурсивных типов. Объяснение этому простое: если мы \emph{используем} некоторый тип
+то мы в общем случае не знаем его определения. Следовательно, для поддержки раздельной компиляции интерфейсы всех сущностей должны иметь общую структуру.
 
-This scheme of typing and pasteurisation looks quite verbose and cumbersome: there are a lot of type parameters which are quite easy to get a mess with. However, end
-users would need to deal with this stuff directly only when they desire to implement a transformation \emph{manually} from scratch by immediately inheriting from the common ancestor class.
-In the majority of use cases the transformation is implemented either by customising a certain plugin or using the plugin system. In the first case many
-type parameters are already instantiated (for example, for ``\lstinline{show}'' the majority of type parameters are instantiated to ground types), in the
-second the plugin system takes care of instantiating the parameters correctly (see Section~\ref{plugins}).
+Эта схема типизации выглядит очень многословной и неочевидной. Присутвует большое количество типовых парамертров в которых легко запутаться.
+Однако, пользователям понадобится разбираться с ними только если они будут реализовывать преобразование \emph{вручную} с нуля путём 
+наследования от общего класса-предка.
+В большинстве случаем преобразование реализуется путём небольшой специализации конкретного плагина или используя систему плагинов. 
+В первом случае многие типовые параметры будут уже специализрованя (например, для  ``\lstinline{show}'' большинство типовых параметров конкретизируется в базовые типы), во втором система плагинов упрощает процесс правильной конкретизации типовых параметром (подробнее в 
+разделе~\ref{plugins}).
 
-We also need to describe the types for the methods of common ancestor classes. The method for a
-constructor ``\lstinline|C of a$_1$ * a$_2$ * ... * a$_k$|'' has the following definition:
-
-\begin{lstlisting}
-   method virtual $\inbr{C}$ : $\iota$ -> $\epsilon$ -> a$_1$ -> a$_2$ -> ... -> a$_k$ -> $\sigma$
-\end{lstlisting}
-
-Note, the method takes not only inherited attribute and the arguments of corresponding constructor, but the value under transformation itself.
-
-Finally, we describe the type of transformation function. This type is slightly different for polymorphic variant types.
-
-For a non-polymorphic variant type ``\lstinline|$\{\alpha_i\}$ t|'' the transformation function has the following type:
+Нам также необходимо описать типы аргуметов у методов общего класса. Методадля коструктора  ``\lstinline|C of a$_1$ * a$_2$ * ... * a$_k$|'' имеет следующую сигнатуру:
 
 \begin{lstlisting}
-   val $\inbr{gcata_t}$ : [$\{\iota_{\alpha_i}$, $\alpha_i$, $\sigma_{\alpha_i}\}$, $\iota$, $\{\alpha_i\}$ t, $\sigma$]#$\inbr{t}$ -> $\iota$ -> $\{\alpha_i\}$ t -> $\sigma$
+  method virtual $\inbr{C}$ : $\iota$ -> $\epsilon$ -> a$_1$ -> a$_2$ -> ... -> a$_k$ -> $\sigma$
 \end{lstlisting}
 
-Thus, it takes a transformation object (which has a type of properly parameterised \emph{subclass} of the common ancestor class), an inherited
-attribute, a value to transform, and returns synthesised attribute. The extra type parameter ``$\epsilon$'' is instantiated to the
-type itself. For a polymorphic variant type the extra type parameter is instantiated to the \emph{open} version of the
-type (``\lstinline{[> $\{\alpha_i\}$ t]}''). This enables the possibility to apply a transformation function for a type to a transformation object for
-another type with more constructors.
+Обратите внмание, метод принимает не только наследуемый атрибут и аргументы, соответствующие конструктору, но и значение, которое сейчас преобразуется.
+
+Наконец, мы опишем тип обощенных функций преобразования. Тип слегка изменяется для случая полиморфных вариантных типов.
+
+
+Для не типа, не являющегосяя полимрфным вариантным типом, с именем ``\lstinline|$\{\alpha_i\}$ t|'' обощенная функция трансформации имеет следующий тип:
+
+\begin{lstlisting}
+val $\inbr{gcata_t}$ : [$\{\iota_{\alpha_i}$, $\alpha_i$, $\sigma_{\alpha_i}\}$, $\iota$, $\{\alpha_i\}$ t, $\sigma$]#$\inbr{t}$ -> $\iota$ -> $\{\alpha_i\}$ t -> $\sigma$
+\end{lstlisting}
+
+Она принимает объект, представляющий преобразование, у которого типовые параметры, полученные путём наследования от базового класса, соответвующим образом конкретизированиы , наследуемый атрибут, значение, которое будет преобразовано и возвращает синтезируемый атрибут.
+Дополнительный парметр ``$\epsilon$'' конкретизирется в обрабатываемый тип. 
+Для полиморфных вариантных типов дополнительный параметр конкретизируется в \emph{открытую}
+версию типа  (``\lstinline|[> $\{\alpha_i\}$ t]|''). 
+Это позволяет применять функцию преобразования к объекту, представлящего преобразование расширенного типа с большим количество конструкторов.
 
 
 \subsection{Fixed Point Combinator and Memoization}
