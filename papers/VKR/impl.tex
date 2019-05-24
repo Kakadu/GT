@@ -386,32 +386,29 @@ val $\inbr{gcata_t}$ : [$\{\iota_{\alpha_i}$, $\alpha_i$, $\sigma_{\alpha_i}\}$,
 
 В аргументрах конструктора ``\lstinline{A}'' мы имеем \emph{различные} параметризации типа ``\lstinline{b}'', и поэтому нам понадобятся \emph{две} функции~--- для``\lstinline{$\alpha$ b}'' и для ``\lstinline{$\beta$ b}''. Однако, тип ``\lstinline{a}'' не является регулярным~--- начав преобразование типа ``\lstinline{($\alpha$, $\beta$) a}'' мы придём к необходимости преобразования значений типов ``\lstinline{($\alpha$, $\alpha$) a}'' и ``\lstinline{($\beta$, $\beta$) a}''.
 
-Следовательно, 
-Thus, we have already ruled such definitions out. In this reasoning we assume that mutually recursive definitions are \emph{essential} in the sense that they
-can not be split into separate type declarations (i.e. that every pair of types are mutually ``reachable''). If we replace the second definition in the
-example above with, say,
+Следовательно, мы уже отсеяли такие объявления типов. Получается, что взаимно рекурсивные объявления типов являются \emph{существенными} в том смысле, что они не всегда могут быть разделены на два не взаимно рекурсивных определения, а именно, когда каждая пара типов взаимно достижима. Если мы заменим второе объявление типа, скажем, на
 
 \begin{lstlisting}
    ...
    and $\alpha$ b = int
 \end{lstlisting}
 
-then we would end up with a case which is not supported by our framework. However, as types ``\lstinline{a}'' and ``\lstinline{b}'' are actually \emph{not}
-mutually recursive, the whole definition can be rewritten, which restores the support.
+то мы полуичм объявление типов, которое не поддерживается у нас. Однако, так как типы ``\lstinline{a}'' и ``\lstinline{b}''  \emph{не являются}
+по сути взаимно рекурсивными, то всё определение типов может быть переписано, что уже позволит воспользоваться нашими наработками.
 
-\subsection{Polymorphic Variants}
+
+\subsection{Полиморфные вариантные типы}
 \label{pv}
 
-We consider the support for polymorphic variants~\cite{PolyVar,PolyVarReuse} as an important feature of our framework since it complements the ability of defining
-composable data structures with the ability of creating composable transformations. The main difference between polymorphic variants and usual algebraic
-data types is that it is possible to \emph{extend} previously declared polymorphic variants by adding more constructors or to combine a few types into the one. 
+Мы считаем поддержку полиморфных вариантных типов~\cite{PolyVar,PolyVarReuse} важной части нашей работы, так как она открывает возможности 
+композиционального определения структур данных с возможность объявляние композициональных преобразований.
+Главным отличием между полиморфными вариантным типами  и алгебраическими, является возможность 
+\emph{расширения} объявленных ранее полиморфных вариантныхъ типов путём добавление новых коснтрукторов или комбинированием нескольких типов в один. 
 
-Our goal is to provide a \emph{seamless} integration of generic features: when a few types are being combined we would want to acquire all generic
-features for the result type by inheriting the same features from the constituent types.
+Нашей задачей является предоставление  \emph{бесшовной} интеграции с обощенными возможностями. Когда несколько типов будет скобинированы, мы должны получить все обощенные возможности простым наследование соответсвующих типов.
 
-As we said previously, an extra type parameter ``$\epsilon$'' is inferred to an open version of the polymorphic variant type. Thus, the same generic transformation
-function can be used to transform a value using a transformation object for a \emph{wider} type\footnote{We refrain from calling this type a ``subtype'' since there is
-no subtyping in \textsc{OCaml}.}. This is achieved by a specific form of generic transformation function, which performs an ``opening'':
+Как мы сказали ранее, дополнительный параметр  ``$\epsilon$'' вычисляется в открытую разновидность полиморфного вариантного типа. Следовательно, должно быть разрешено использовать ту же функцию обощенного преобразования до для более \emph{широкого} типа\footnote{Мы воздерживаемся от измползования термина ``подтип'' так как в \textsc{OCaml} нет настоящего подтипирования.}. 
+Это может быть достигнуто специфической формой обощенной фукнции трансформации, которая производит ``открытие'':
 
 \begin{lstlisting}
    let $\inbr{gcata_t}$ $\omega$ $\iota$ subj =
@@ -421,8 +418,7 @@ no subtyping in \textsc{OCaml}.}. This is achieved by a specific form of generic
      $\dots$
 \end{lstlisting}
 
-This results in applying the methods of transformation object to an opened version of the type, while the transformation function itself still operates only
-of the closed version.
+Это выливается в применении методов объекта, представлящего преобразование, к открытой разновидности типа, в то время как обобщенная функция преобразования принимает замкнутый тип.
 
-When a few polymorphic variant types are combined, the transformation function simply matches a value against type patterns and dispatches the
-transformation to the transformation functions of a corresponding constituent type.
+Если несколько полиморфных вариантных типов объединяются, то обощенная функция преобразования сопоставляем значение с образцами-типами и передает управление соответвующим обощенным функциям преобрзвания.
+

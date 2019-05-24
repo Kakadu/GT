@@ -1,21 +1,17 @@
-\section{Examples}
+\section{Примеры}
 \label{sec:examples}
 
-In this section we present some examples, written with the aid of our library. In this examples we will use \cd{camlp5} syntax extension,
-although \cd{ppxlib} plugin can be used equally. As we said, the library is a direct inheritor of our prior work~\cite{TransformationObjects}, and
-all examples from that paper can be implemented using the new version. Here we show some more.
+В этом разделе мы представим несколько примеров, реализованных с помощью нашей библиотеки. В этих примерах используются синтаксические расширения \cd{camlp5}, хотя всё может быть переписано с использованием \cd{ppxlib}. Как было скзано выше даннная работа является прямым наследником~\cite{TransformationObjects} и все примеры из той статьи работают в этой версии. Здесь мы покажем несколько новых.
 
-\subsection{Typed Logic Values}
+\subsection{Типизированые логические значения}
 
-The first example arose in the context of our work on strongly typed logical DSL for \textsc{OCaml}~\cite{OCanren}. One of the
-most important construct there was a unification of terms with free logical variables, and dealing with such data structures
-involves a lot of tedious and error-prone work. The typical scenario of interaction between a logical and non-logical worlds
-is constructing a \emph{goal} containing a data structure with free logical variables and solving it. The solution
-provides bindings for these variables, which, in optimistic scenario, do not contain free variables anymore. To construct
-a goal one would need a systematic way to introduce logic variables in some typed data structure, and to recover answers~---
-a systematic way to return to a plan, non-logical representation.
+Первый пример появился во врем работы на строго типизированым логическим предметно-ориентированным языком для \textsc{OCaml}~\cite{OCanren}. 
+Одной из самых важных конструкций была унификация термов со свободными логическими переменными, работать с такими структурами данных сложно, а допустить ошибку --- легко. Типичным сценарием взаимодействия  между логическими и нелогическими частями программ является 
+создание так называемых \emph{целей вычислений} (англ. goal), содержащих структуры данных со свободными логическими переменными в них.
+Решением логической цели, является подстановка переменных, правые части которой в идеальном случае не содержит свободных переменных. Чтобы
+сконструировать цель вычислений систематически вводить логические переменные в некоторую типизированную структуру данных,  а для восстановления ответа -- систематически извлекать из логических представлений ответы в нелогическом представлении.
 
-The (simplified) type for logic values can be defined as follows:
+Упрощённый тип для логических переменных может быть описан следующим образом:
 
 \begin{lstlisting}
    @type 'a logic =
@@ -24,9 +20,7 @@ The (simplified) type for logic values can be defined as follows:
    with show, gmap
 \end{lstlisting}
 
-A logic value can either be a free logic variable (``\lstinline{V}'') or a some other value (``\lstinline{Value}'') which is not
-a free variable (but which can possibly contain free variables inside). To convert to- and from- the logic domain we can use the following
-functions:
+Логическое значение может быть либо свободной логической переменной (``\lstinline{V}'') или каким-то другим значением (``\lstinline{Value}''), которое не вляется свободной переменной, но потенциально может содержать свободные переменные внутри себя. Чтобы преобразовывать в и из логических значений, можно воспользоваться следующими функциями:
 
 \begin{lstlisting}
    let lift x = Value x
@@ -36,13 +30,12 @@ functions:
    | Value x -> x
 \end{lstlisting}
 
-The function ``\lstinline{reify}'' raises and exception on a free variable; indeed, if an occurrence of a free variable
-is encountered the logic value can no longer be considered as a regular (non-logical) data structure and has to be interpreted
-in some other way.
+Функция ``\lstinline{reify}'' бросает исключение для свободных переменных, так как в присутствии вхождений свободных переменных
+логическое значение нельзя рассматривать как обыкновенную (нелогическую) структуру данных.
 
-When we dealing with logic data structures we need to have an opportunity to put a free variable in an arbitrary
-position. This means that we have to switch to another type, ``lifted'' into the logic domain. For example,
-for arithmetic expressions, which we use as an example through the paper, we would need to construct a value like
+Когда мы работает с логическими структурами данных, на необходима возможность вставлять логические переменные в произвольные позиции.
+Это означает, что мы должны переключиться на использование другого типа, который принадлежит домену логических типов. Например,
+для арифметических выражений, которые мы использовали как пример, нам понадобится конструировать значения вида
 
 \begin{lstlisting}
    Value (
@@ -54,18 +47,17 @@ for arithmetic expressions, which we use as an example through the paper, we wou
    )
 \end{lstlisting}
 
-which has a type ``\lstinline{lexpr}'', defined as
+которые будут иметь тип ``\lstinline{lexpr}'', объявленный как
 
 \begin{lstlisting}
    type expr' = Var of string logic | Const of int logic | Binop of lexpr * lexpr
    and  lexpr = expr' logic
 \end{lstlisting}
 
-We also need to implement two conversion functions. All these definitions present a typical example of boilerplate code.
+Нам также нужно реализовать дву функции преобрзования. Все эти определения представляют собой типичный пример однотипного (boilerplate) кода.
 
-With our framework the solution is almost purely declarative\footnote{But we need to switch the compiler into \cd{-rectypes} mode}.
-First, we abstract the type of interest, replacing all positions, in which we may desire to place a type variable, with
-fresh type parameters:
+С измользование нашего подхода решение почти полностью декларативно\footnote{При условии включения ключа компиляции \cd{-rectypes}}.
+Во-первых, мы абстрагируемся от интересующего нас типа, заменяя все его вхождения типовой переменной с невстречающимся ранее именем:
 
 \begin{lstlisting}
    @type ('string, 'int, 'expr) a_expr =
@@ -74,41 +66,37 @@ fresh type parameters:
    | Binop of 'string * 'expr * 'expr with show, gmap
 \end{lstlisting}
 
-Here we abstract the type of everything, but we could equally abstract it only of itself. Note, we make use of two
-generic features~--- ``\lstinline{show}'' and ``\lstinline{gmap}''. The first one is needed for debugging purposes, while
-the second is essential for our solution.
+Здесь мы абстрагировали тип от всего конкретного, но мы могли обойтись абстрагированием только от самого себя. Заметьте, что 
+мы воспользовались двумя видами обощенных преобразований~--- ``\lstinline{show}'' и ``\lstinline{gmap}''. 
+Первое будет полезно для отладочных целей, а второе является необходимым для нашего решения.
 
-Now we can define the logical and non-logical counterparts as customised versions of the abstracted type:
+Тепреь мы можем объявить логические и нелогические состовляющие как специализации исходного типа:
 
 \begin{lstlisting}
    @type expr  = (string, int, expr) a_expr with show, gmap
    @type lexpr = (string logic, int logic, lexpr) a_expr logic with show, gmap
 \end{lstlisting}
 
-Note, the ``new'' type ``\lstinline{expr}'' is equivalent to the ``old'' one, thus, this transformation makes no
-harm to the existing code.
+ОБратие внимание, что ``новый'' тип ``\lstinline{expr}'' эквивалентен старому, следовательно, такое переписывание типов не нарушает существующий код.
 
-Finally, the definitions of conversion functions make use of the generic ``\lstinline{gmap}'' feature the
-framework provides:
+Наконец, определения фукнций преобразования воспользуются преобразованием, полученным с помощью плагина ``\lstinline{gmap}'', предоставляемого библиотекой:
 
 \begin{lstlisting}
    let rec to_logic   expr = gmap(a_expr) lift  lift  to_logic  expr
    let rec from_logic expr = gmap(a_expr) reify reify from_logic @@ reify expr
 \end{lstlisting}
 
-As we can see, the support for type constructor application is vital for the success of this scenario. In our prior
-implementation~\cite{TransformationObjects} type constructor application was not supported and could not be easily added.
+Как вы видите, поддержка типовых операторов существенна для этого примера. В предыдущей реализации~\cite{TransformationObjects} типовые опреаторы не были поддержаны и их было не так просто добавить.
 
-\subsection{Conversion to a Nameless Representation}
+\subsection{Преобразование в безымянное представление}
 
-Polymorphic variant types make it possible to define composable statically typed and separately compiled data structures~\cite{PolyVarReuse}.
-Dealing with them to implement composable statically typed and separately compiled transformations looks like a natural idea. The problem of
-constructing transformations from separately compiled, strongly typed components is known as ``The Expression Problem''~\cite{ExpressionProblem}, which
-is often used as a ``litmus test'' for generic programming frameworks~\cite{ObjectAlgebras,ALaCarte}. In this section we show the solution for
-the expression problem with the aid of our framework. For a concrete problem we take the transformation from named to a nameless representations
-for lambda terms.
+Полиморфные вариантные типы позволяют описывать структуры данных композиционально, статически типизированно и в разных модулях 
+компоновки~\cite{PolyVarReuse}.
+Объявлять преобразования таких структур данных отдельно являеется естественной идеей. Проблема конструирования преобразований 
+раздельно объявленных строго типизированных компонент известна как ``проблема выражений'' (``The Expression Problem''~\cite{ExpressionProblem}), которая часто исползуется как ``лакмусовый тест'' для оценивания подходов к обощенному программированию~\cite{ObjectAlgebras,ALaCarte}. 
+В этом разделе мы покажем решение проблемы выражений в рамках нашего подхода. В качестве конкретной задачи мы реализуем преобразование лямбда-термов в безымянное представление.
 
-First, we define the non-binding part of the terms:
+Во-первых, опишем часть языка термов без связывающих конструкций:
 
 \begin{lstlisting}
    @type ('name, 'lam) lam = [
@@ -117,14 +105,13 @@ First, we define the non-binding part of the terms:
    ] with show
 \end{lstlisting}
 
-Separating this type looks a natural idea since potentially there can be many binding constructs (lambdas, lets, etc.) and by combining them
-with the non-binding part (and with themselves) one can acquire a variety of languages with a coherent behaviour.
+Отделение этого типа выглядит логичной идей, так как потенциально в языке можеть появить множетсво констуркций, связывающих переменные 
+($\lambda$-абстракции, \lstinline=let=-определения и т.д.) и комбинируя их с несвязывающей частью и с ними самими можно получать множетсво языков с согласованным поведением.
 
-The type ``\lstinline{lam}'' is polymorphic: the first parameters is used to represent names or de Bruijn indices, the second one is needed
-for open recursion (we here follow the known technique for describing extensible data structures with polymorphic variants~\cite{PolyVarReuse}).
+Тип ``\lstinline{lam}'' полиморфен. Первый параметр используется для представления имен или индексов де Брауна, второй необходим для открытой рекурсии (здесть мы следуем уже исследованому подходу по описанию расширяемых структур данных с помощью полиморфных 
+вариантов~\cite{PolyVarReuse}).
 
-What would the transformation to the nameless representation look like for this type? In our terms, what the transformation class is? It is shown
-below:
+Как долно выглядеть преобразование в безымянное представление для такого типа? А именно, как должен выглядет класс преобразвания? Это показано ниже:
 
 \begin{lstlisting}
    class ['lam, 'nameless] lam_to_nameless
@@ -138,21 +125,23 @@ below:
    end
 \end{lstlisting}
 
-First, we use a list of strings as an environment, and we pass it as an inherited attribute. Then, we use a function ``\lstinline{index}'' to find a
-position of a string in the environment (thus, it translates names to the de Bruijn indices). The interesting part is the typing of the common ancestor
-class ``$\inbr{lam}$''. The first triple of its parameters describes the transformation for the first type parameter of the type. As we can see, we
-transform strings into integers, using an environment. Next, the type variable ``\lstinline{'lam}'', as we know, will be set to the open version of the ``\lstinline{lam}''.
-Finally, the result of the transformation is typed as ``\lstinline{'nameless}''. This is because the result will be, indeed, a different type, as we
-will see soon. As the type parameter ``\lstinline{'lam}'' designates the type itself, the last three parameters repeat the next to last three.
+Здесь мы используем список строк для хранения подстановки переменных и  передаем его как наследуемый атрибут. Затем мы воспользуемся фукнцией 
+``\lstinline{index}'' чтобы найти строку в подстановки, т.е.  эта функция преобразуем имея в индекс де Брауна. 
+Интересной часть преобразования является типизация общего класса предка ``$\inbr{lam}$''. 
+Первая тройка параметров описывает преобразвание первого типовго параметра. Как Вы видите, мы преобразуем строки в числа используя подстановку.
+Здесь типовая переменная ``\lstinline{'lam}'', как мы знаем, приравняется открытой версии типа ``\lstinline{lam}''.
+Наконец. результат преобразование типизируется с помощью типовой переменной ``\lstinline{'nameless}''. 
+Так происходит именно так потому, что, как будет понятно позднее,  это будет действительно другой тип.
+Так как второй типовый параметр обычно ссылается рекурсивно на себя, третья тройка типовых параметров совпадает со второй.
 
-Now we define a binding construct~--- abstraction:
+Давайте теперь добавим связывающую конструкцию -- $\lambda$-абстракцию:
 
 \begin{lstlisting}
    @type ('name, 'lam) abs = [ `Abs of 'name * 'lam ] with show
 \end{lstlisting}
 
-The same reasoning applies here: we use an open recursion and a parameterization over name representation. The transformation class can be
-implemented in a similar manner:
+Те же самые рассуждения применимы и тут: мы пользуется открытой рекурсией и параметризируем представление относительно имени.
+Класс для преобразования будет выглядеть похожим образом:
 
 \begin{lstlisting}
   class ['lam, 'nameless] abs_to_nameless
@@ -165,23 +154,23 @@ implemented in a similar manner:
   end
 \end{lstlisting}
 
-Note, the method ``$\inbr{Abs}$'' constructs a value which has a \emph{different} type, than any parameterization of ``\lstinline{abs}''. Indeed, in a
-nameless representation abstraction does not keep any name.
+Заметьте, что метод ``$\inbr{Abs}$'' конструирует занчения \emph{другого} типа, чем любая возможная параметризация типа ``\lstinline{abs}''. Действително, безымянное представление типа не должно содержать никаких суррогатов имён.
 
-We can now combine two type definitions to build a type for terms with binders:
+Теперь мы можем объединить эти два типа, чтобы получить тип термов со связывающими конструкциями:
 
 \begin{lstlisting}
    @type ('name, 'lam) term = [ ('name, 'lam) lam | ('name, 'lam) abs) ] with show
 \end{lstlisting}
 
-We can also provide two new types for named and nameless representation\footnote{We need to enable \cd{-rectypes} mode for these definitions to compile.}:
+Мы можем предоставить два новых типа для именованого и безымянного представления\footnote{Нам понадобится использовать ключ компиляции
+\cd{-rectypes}, чтобы эти определения типов скомпилировались .}:
 
 \begin{lstlisting}
    @type named    = (string, named) term with show
    @type nameless = [ (int, nameless) lam | `Abs of nameless] with show
 \end{lstlisting}
 
-Finally, we build a transformation for converting a named to a nameless representation:
+Наконец, мы может описать преобразвание, которое превращает именованые термы в их безымянное представление:
 
 \begin{lstlisting}
    class to_nameless
@@ -193,23 +182,20 @@ Finally, we build a transformation for converting a named to a nameless represen
    end
 \end{lstlisting}
 
-This transformation is constructed by inheriting all relevant counterparts: a common ancestor class for all transformations for the type ``\lstinline{named}'' and
-two concrete transformations for its counterparts. The transformation function can be build in a standard way:
+Это преобразование получается путём наследования всех важных состовляющих: общего класса для всех трансформаций типа ``\lstinline{named}'' 
+и двуз конкретных преобразований его состовляющих. Функция трансформации может быть получена стандартным способом:
 
 \begin{lstlisting}
    let to_nameless term =
      transform(named) (fun fself -> new to_nameless fself) [] term
 \end{lstlisting}
 
-Thus, we constructed a solution for a type from the solutions for its counterparts. This partial solutions can be separately compiled, and the whole
-system remains strongly statically typed.
+Только что мы построили реализацию, комбинируя реализации для его состовляющих. Эти частичные решения могут быть раздельно скомпонованы, а вся система при этом остается строго типизированной.
 
-\subsection{A Custom Plugin}
+\subsection{Пример пользовательского плагина}
 \label{pluginExample}
 
-Finally we demonstrate the utilisation of the plugin system using the example of a fresh custom plugin implementation. For this purpose we
-take a well-known \emph{hash-consing} transformation~\cite{HC}. This transformation converts a data structure to its maximally shared
-representation, when structurally equal substructures are represented by the same physical object. For example, an expression tree
+Наконец, мы продемонстрируем использование системы плагинов на свежем примере реализации плагина. Для этой цели мы выбрали широко известное преобразование \emph{hash-consing}~\cite{HC}. Это преобразование превращает структуры данных в их максимально компактное представление в памяти, при котором структурно равные части представляются в памяти как один физический объект. Например, синтаксическое дерево выражения
 
 \begin{lstlisting}
    let t =
@@ -220,7 +206,7 @@ representation, when structurally equal substructures are represented by the sam
        Binop ("*", Var "b", Var "a"))
 \end{lstlisting}
 
-can be rewritten into
+может быть переписано  как
 
 \begin{lstlisting}
    let t =
@@ -229,6 +215,7 @@ can be rewritten into
      Binop ("+", Binop ("-", b, ba), ba)  
 \end{lstlisting}
 
+где равные 
 where equal sub expressions are represented by shared sub trees.
 
 Our plugin for a type ``\lstinline|$\left\{\alpha_i\right\}$ t|'' will provide a hash-consing function ``\lstinline{hc(t)}'' of the type
