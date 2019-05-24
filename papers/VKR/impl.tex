@@ -167,25 +167,26 @@ val $\inbr{gcata_t}$ : [$\{\iota_{\alpha_i}$, $\alpha_i$, $\sigma_{\alpha_i}\}$,
 Это позволяет применять функцию преобразования к объекту, представлящего преобразование расширенного типа с большим количество конструкторов.
 
 
-\subsection{Fixed Point Combinator and Memoization}
+\subsection{Комбинатор неподвижной точки и мемоизация}
 \label{memofix}
 
-In our approach we use open recursion: a class for a concrete transformation takes a function for the same transformation as a parameter. In order
-to instantiate this function we have to use a fix point combinator. In this section we consider only a simple fix point combinator for an isolated
-type definition; in mutually-recursive case a more elaborated combinator is needed (see Section~\ref{murec}).
+В нашем подходе мы полагаемся  на открытую рекурсию: класс, реализующий конкретное преобразование принимает фукнцию преобразования самого себя как параметр.
+Чтобы содать такую функцию необходим комбинатор неподвижной точки. В  этм разделе
+мы рассмотрим только простой котакой комбинатор, а именно для одиночного объявления типа.
+Во взаимно рекурсивном случае понадобится более сложная реализация (подробне в 
+разделе~\ref{murec}).
 
-We repeat here an example from Section~\ref{expo}:
+Мы напоминаем вам пример из раздела~\ref{expo}:
 
 \begin{lstlisting}
-   let $\inbr{pretty_{ex pr}}$ e =
+   let $\inbr{pretty_{expr}}$ e =
      fix (fun fself p e -> $\inbr{gcata_{expr}}$ (new $\inbr{pretty_{expr}}$ fself) p e) min_int e
 \end{lstlisting}
 
-As the lambda argument of ``\lstinline{fix}'' is called each time when ``\lstinline{fself}'' is called (virtually, for each node of
-an expression), a new transformation object is created for each node. As all these objects are identical, this can be optimised. 
+Здесь присутисвует лямбда абстракци, тело которой вычисляется всякий раз, когда вызывается \lstinline{fself}'' в классе преобразования (по сути, для каждого узла в дереве трансформируемого значения). Так как все объекты одинаковы, то их создание можно соптимизировать.
 
-We memoize the creation of transformation objects using lazy evaluation. For this we abstract the object creation sub expression into a
-function which takes ``\lstinline{fself}'' as an argument. Then the implementation of the fix point combinator is as follows:
+Мы мемоизирует создания объекта, представляющего преобразование, с помощью ленивых вычислений. Для этого мы абстрагируем создание объекта в функцию, которая принимает
+аргумент ``\lstinline{fself}''. Реализация комбинатора неподвижной точки выглядит следующим образом:
 
 \begin{lstlisting}
    let fix gcata make_obj $\iota$ x =
@@ -194,80 +195,77 @@ function which takes ``\lstinline{fself}'' as an argument. Then the implementati
      fself $\iota$ x
 \end{lstlisting}
 
-This combinator can be used for all types and is not generated. Now we can fix a little bit the definition of ``\lstinline{transform}'':
+Этот комбинатор может использоваться для всех типов и не является генерируемым по типу данных. Теперь мы может немного исправить объявление функции ``\lstinline{transform}'':
 
 \begin{lstlisting}
    let transform typeinfo = fix typeinfo.gcata
 \end{lstlisting}
 
-With this definition an end used does not need to deal with the fix point combinator explicitly anymore:
+С помощью этого определения пользователю не нужно использовать комбинатор неподвижной точки явно:
 
 \begin{lstlisting}
    let $\inbr{show_{expr}}$ e =
      transform(expr) (fun fself -> new $\inbr{show_{expr}}$ fself) () e
 \end{lstlisting}
 
-\subsection{The Plugin System}
+\subsection{Система плагинов}
 \label{plugins}
 
 \begin{figure}[t]
   \center
   \small
   \begin{tabular}{ccp{4cm}}
-    Name & Type of the transformation & Comment \\[3mm]
+    Название & Тип функции трансформации & Комментарий \\[3mm]
     \hline\\
-    \lstinline|show| & \lstinline|$\{$ unit -> $\alpha_i$ -> string $\}$ -> unit -> $\{\alpha_i\}$ t -> string| & conversion to a string \\[2mm]
-    \lstinline|fmt| & \lstinline|$\{$ formatter -> $\alpha_i$ -> unit $\}$ -> formatter -> $\{\alpha_i\}$ t -> unit| & formatted output using the ``\lstinline|Format|'' module \\[2mm]
-    \lstinline|html| & \lstinline|$\{$ unit -> $\alpha_i$ -> HTML.t $\}$ -> unit  -> $\{\alpha_i\}$ t -> HTML.t| & conversion to HTML representation\\[2mm]
-    \lstinline|compare| & \lstinline| $\{$ $\alpha_i$ -> $\alpha_i$ -> comparison $\}$ -> $\{\alpha_i\}$ t -> $\{\alpha_i\}$ t -> comparison| & comparison \\[2mm]
-    \lstinline|eq| & \lstinline|$\{$ $\alpha_i$ -> $\alpha_i$ -> bool $\}$ -> $\{\alpha_i\}$ t -> $\{\alpha_i\}$ t -> bool| & equality test \\[2mm]
-    \lstinline|foldl| & \lstinline |$\{$ $\alpha$ -> $\alpha_i$ -> $\alpha$ $\}$ -> $\alpha$ -> $\{\alpha_i\}$ t -> $\alpha$| & threading an inherited attribute through all the nodes using a top-down traversal \\[2mm]
-    \lstinline|foldr| & \lstinline |$\{$ $\alpha$ -> $\alpha_i$ -> $\alpha$ $\}$ -> $\alpha$ -> $\{\alpha_i\}$ t -> $\alpha$| & threading an inherited attribute through all the nodes using a bottom-up traversal \\[2mm]
-    \lstinline|gmap| & \lstinline|$\{$ unit -> $\alpha_i$ -> $\beta_i$ $\}$ -> unit -> $\{\alpha_i\}$ t -> $\{\beta_i\}$ t| & a functor%\\[2mm]
+    \lstinline|show| & \lstinline|$\{$ unit -> $\alpha_i$ -> string $\}$ -> unit -> $\{\alpha_i\}$ t -> string| & преобразование в строку\\[2mm]
+    \lstinline|fmt| & \lstinline|$\{$ formatter -> $\alpha_i$ -> unit $\}$ -> formatter -> $\{\alpha_i\}$ t -> unit| & форматированый вывод с помощью модуля ``\lstinline|Format|'' \\[2mm]
+    \lstinline|html| & \lstinline|$\{$ unit -> $\alpha_i$ -> HTML.t $\}$ -> unit  -> $\{\alpha_i\}$ t -> HTML.t| & преобразование в HTML представление \\[2mm]
+    \lstinline|compare| & \lstinline| $\{$ $\alpha_i$ -> $\alpha_i$ -> comparison $\}$ -> $\{\alpha_i\}$ t -> $\{\alpha_i\}$ t -> comparison| & сравнение \\[2mm]
+    \lstinline|eq| & \lstinline|$\{$ $\alpha_i$ -> $\alpha_i$ -> bool $\}$ -> $\{\alpha_i\}$ t -> $\{\alpha_i\}$ t -> bool| & проверка на равенство \\[2mm]
+    \lstinline|foldl| & \lstinline |$\{$ $\alpha$ -> $\alpha_i$ -> $\alpha$ $\}$ -> $\alpha$ -> $\{\alpha_i\}$ t -> $\alpha$| & протаскивание наследуемого атрибута через все узлы сверху вниз \\[2mm]
+    \lstinline|foldr| & \lstinline |$\{$ $\alpha$ -> $\alpha_i$ -> $\alpha$ $\}$ -> $\alpha$ -> $\{\alpha_i\}$ t -> $\alpha$| & протаскивание наследуемого атрибута через все узлы снизу вверх \\[2mm]
+    \lstinline|gmap| & \lstinline|$\{$ unit -> $\alpha_i$ -> $\beta_i$ $\}$ -> unit -> $\{\alpha_i\}$ t -> $\{\beta_i\}$ t| & функтор %\\[2mm]
 %    \lstinline|eval| & \lstinline|$\{$ $\epsilon$ -> $\alpha_i$ -> $\beta_i$ $\}$ -> $\epsilon$ -> $\{\alpha_i\}$ t -> $\{\beta_i\}$ t| & a variant of functor with an environment ``$\epsilon$'' passed through a transformation\\[2mm]
 %    \lstinline|stateful| & \lstinline|$\{$ $\epsilon$ -> $\alpha_i$ -> $\epsilon$ * $\beta_i$ $\}$ -> $\epsilon$ -> $\{\alpha_i\}$ t -> $\epsilon$ * $\{\beta_i\}$ t| & similar to ``\lstinline|eval|'' but allows to update the environment on the way        
   \end{tabular}
-  \caption{The list of predefined plugins}
+  \caption{Список предоставляемых по-умолчанию плагинов}
   \label{listofplugins}
 \end{figure}
 
-The default behaviour of our framework is to generate the transformation function, the common ancestor class and the typeinfo structure only. It does not
-generate any concrete built-in transformations. All concrete transformations are generated by \emph{plugins}, and the plugin system allows end users to
-implement their own. There is a number of predefined plugins (see Figure~\ref{listofplugins}), but none of them receives a special treatment from the
-rest of the framework.
+Поведением по-умолчанию для нашей библиотеки является создание обощенной функции трансформации, обобщенного класса и струтуры с информацией о типе. Они не создает никаких конкретных встроенных преобразований. Все преобразования создаются \emph{плагинами}, а система плагинов позволяет пользователям реализоваывать их собственные.
+Присутствует некоторое количество плагинов, поставляемых вместе с библиотекой 
+(таблица~\ref{listofplugins}), но ни один из них не обрабатывается каким-то особым образом остальной частью библиотеки.
 
-Each plugin is implemented as a dynamically-loaded object, and to create a plugin an end user has to properly instantiate a compilation unit using an interface
-provided by the framework. The same approach is used in a number of existing frameworks~\cite{PPXLib,Yallop}; however, we claim, that in our case the
-implementation of a plugin is much simpler. The reason is that the concrete and generic parts of transformations are properly separated. Thus,
-a plugin only instantiates a class, and only a limited assistance from an end-user side is needed. Generally speaking, the following information has to be
-provided:
+Каждый плагин реализован как динамически загружаемый объект, и чтобы создать плагин, разработчик должен правильно воспользоваться интерфейсом, предоставляемым библиотекой.
+Аналогичный подход используется в нескольких уже существующих 
+библиотеках~\cite{PPXLib,Yallop}, но, мы заявляем, что в нашем случае реализация плагинов выглядит несколько проще. Причиной этому является то, что конкретная и обобщенная части трансформаций разделены. Следовательно, создание плагина выливается только в правильное создание класса трансформации, что требует минимального вмешателства разработчика.
+В общем случае, только следующая информация о новом плагине должна быть указана:
 
 \begin{itemize}
-\item What are the types of inherited and synthesised attributes for a given type parameter?
-\item What are the types of inherited and synthesised attributes for the type itself?
-\item What is the body of the method which transforms given constructor (the arguments of the method and their types are specified by the framework)?
-\item What the toplevel method of the typeinfo structure for the plugin is look like?
+\item Типы наследуемого и синтезируемого атрибутов для каждого параметра типа.
+\item Типы наследуемого и синтезируемого атрибутов для самого преобразуемого типа.
+\item Тело метода для преобразования конструкторов.
+% \item Как будет выглядеть метод для структуры What the toplevel method of the typeinfo structure for the plugin is look like?
 \end{itemize}
 
-So, there are only a limited number of places where a plugin actually needs to generate a code, and as a rule the generated code is very simple. The
-code generation interface the plugin system provides resembles that of \cd{ppxlib} (more precise, \cd{Ast_builder}), which has to be familiar to anyone,
-who has ever implemented syntax extensions. In the Section~\ref{pluginExample} we present a complete example of fresh plugin implementation.
+Итого, количетсво мест, где плагин генериует код для обработки типов довольно мало, а генерируемый код относительно прост. Интерфейс построения синтаксического дерева напоминает интерфес в \cd{ppxlib} (а именно, подмодуль \cd{Ast_builder}), который должен быть знаком всем, кто когда-то разрабатывал синтаксические расширения для \textsc{OCaml}
+В разделе~\ref{pluginExample} мы представим полный пример создания свежей реализации плагина.
 
-\subsection{Mutual Recursion}
+\subsection{Взаимная рекурсия}
 \label{murec}
 
-The full support for mutually recursive type definitions requires extra efforts. While, formally, the generation of all needed entities for
-mutually recursive definitions can be done in a similar manner as for the isolated case, it would break the extensibility of
-transformations. We demonstrate this phenomenon by the following example. Let us have the definition
+Полная поддержка взаимно рекурсивных определений типов требует дополнительных усилий.
+Формально, создание всех необходимых сущностей может быть произведена также, как и для 
+одиночного случая, но это может нарушить расширяемость получаемых преобразований.
+Мы продемонстриуем это феномен в примере ниже. Рассмотрим определение типа
+
 
 \begin{lstlisting}
    type expr = $\dots$ | LocalDef of def * expr
    and  def  = Def of string * expr
 \end{lstlisting}
 
-where we omitted a non-relevant part (variables, binary operators, etc.) in expression type declaration. It is rather obvious, that generic
-transformation functions for both types can be kept as they are; indeed, they only ``outsource'' the transformations to corresponding
-methods and do not depend on recursion in type definitions:
+где мы опустили неважные части (переменные, бинарные операции и т.д.) в объявлении типа выражений. Довольно очевидно, что обобженные функции преобразований для обоих типов могут  быть оставлены как они есть, так как они по сути просто перекладывают работы про выполнению преобразования на плечи методов объекта и не зависят от наличия рекурсии в определениях типов.
 
 \begin{lstlisting}
    let $\inbr{gcata_{expr}}$ $\omega$ $\iota$ = function
@@ -278,62 +276,61 @@ methods and do not depend on recursion in type definitions:
    | Def (s, e) as x -> $\omega$#$\inbr{Def}$ $\iota$ x s e
 \end{lstlisting}
 
-The same is true for the common ancestor classes. However, when we start implementing concrete transformations, we would need to use a transformation
-for ``\lstinline{expr}'' inside the class for ``\lstinline{def}'', and vice versa. This can be done with mutually recursive class definitions (we, again,
-omit the non relevant parts):
+То же самое верно и для общего класса-предка. Однако, если мы начнем реализовывать сонкретные преобразования, то нам понадобится преобразование значений 
+типа ``\lstinline{expr}'' внутри класса для ``\lstinline{def}'', и наоборот. Это может быть сделано с помощью взаимно рекурсивных определений классов (мы опять же опускаем неважные части кода):
 
 \begin{lstlisting}
-   class $\inbr{show_{expr}}$ fself =
-   object inherit [unit, _, string] $\inbr{expr}$ fself
+   class $\inbr{show_{expr}}$ fself = object 
+     inherit [unit, _, string] $\inbr{expr}$ fself
      $\dots$
      method $\inbr{LocalDef}$ $\iota$ x d e =
        $\dots$ (fix $\inbr{gcata_{def}}$ (fun fself -> new $\inbr{show_{def}}$ fself) $\dots$) $\dots$
    end
-   and $\inbr{show_{def}}$ fself =
-   object inherit [unit, _, string] $\inbr{def}$ fself
+   and $\inbr{show_{def}}$ fself = object 
+     inherit [unit, _, string] $\inbr{def}$ fself
      method $\inbr{Def}$ $\iota$ x s e =
        $\dots$ (fix $\inbr{gcata_{expr}}$ (fun fself -> new $\inbr{show_{expr}}$ fself) $\dots$) $\dots$
    end
 \end{lstlisting}
 
-Note, in both ``\lstinline{fix}'' sub expressions we instantiated \emph{concrete} classes (``$\inbr{show_{def}}$'' and ``$\inbr{show_{expr}}$''). This should
-work as expected at the first glance. Strictly speaking, this \emph{concrete} transformation works. But, what happens when we decide to redefine the behaviour of
-this default ``$\inbr{show_{expr}}$''? According to our general approach, we would need to inherit from ``$\inbr{show_{expr}}$'', override certain methods and
-construct a function using fix point:
+Заметьте, что в обоих аргументах ``\lstinline{fix}'' мы создаем \emph{конкретные} классы  (``$\inbr{show_{def}}$'' и ``$\inbr{show_{expr}}$''). На первый взгляд, это должно работать как полагается. Строго говоря, это \emph{конкретное} преобразование действительно работает.
+Но что случится, если нам понадобится переопределить поведение в классе 
+ ``$\inbr{show_{expr}}$''? Согласно подходу, определенному выше, на необходимо отнаследоваться от ``$\inbr{show_{expr}}$'', переопределить некоторые метода и сконструировать функцию с помощью комбинатора неподвижной точки:
 
 \begin{lstlisting}
-   class custom_show fself =
-   object inherit $\inbr{show_{expr}}$ fself
+   class custom_show fself = object 
+     inherit $\inbr{show_{expr}}$ fself
      method $\inbr{Const}$ $\iota$ x n = "a constant"
    end
 
    let custom_show e = fix $\inbr{gcata_{expr}}$ (fun fself -> new custom_show fself) () e
 \end{lstlisting}
 
-Alas, this won't work as we desire: we did not override the method ``$\inbr{LocalDef}$'', and it still uses the default version for the type ``\lstinline{def}'', which
-still uses the default version for the type ``\lstinline{expr}''. Thus, we only redefined the behaviour of default ``$\inbr{show_{expr}}$'' for one component of
-mutually recursive type definition~--- the type ``\lstinline{expr}'' as such. All occurrences of ``\lstinline{expr}'' inside other types will still be handled by
-the default transformation. In order to make things work as we want we would need to repeat the \emph{whole} mutually-recursive class definition, which invalidates the
-very idea of extensibility. 
+А это не будет работать так, как мы ожидаем, потому мы не определили метод
+``$\inbr{LocalDef}$'', который использует класс по-умолчанию для типа  ``\lstinline{def}'', который в свою очередь пользуется классом по-умолчанию для типа  ``\lstinline{expr}''.
+Получается, что мы переопределили только поведение только одной компоненты взаимно рекурсивного преобразования типов, а именно для типа ``\lstinline{expr}'' as such. 
+Все вхождения типа ``\lstinline{expr}'' в жругих типах всё ещё преобразуются стандартным образом. Чтобы исправить это поведение, нам придется повторить реализацию взаимно рекурсивных классов \emph{целиком}, что обесценивает всю идею расширяемости.
 
-Our solution for the problem, again, utilises the idea of open recursion. In short, we parameterise the concrete transformation classes with the same transformations
-for \emph{all} components of mutually recursive definition. Since this parameterisation violates the conventions on class interfaces we first generate auxiliary classes.
-For our example this auxiliary classes look as follows:
+Наше решение проблемы снова полагается на идею одткрытой рекурсии. В кратце, мы параметризируем конкретный класс преобразования трансформациями \emph{всех} типов, учавствующих во взаимно рекурсивном определении типов.
+так как эта параметризация нарушает соглашение об интерфейсах классов, нам придется объявить эти классы как дополнительные. Для нашего примера они будут выгляет вот так:
 
 \begin{lstlisting}
-   class $\inbr{show\_stub_{expr}}$ $f_{expr}$ $f_{def}$ =
-   object inherit [unit, _, string] $\inbr{expr}$ $f_{expr}$
+   class $\inbr{show\_stub_{expr}}$ $f_{expr}$ $f_{def}$ = object 
+     inherit [unit, _, string] $\inbr{expr}$ $f_{expr}$
      $\dots$
      method $\inbr{LocalDef}$ $\iota$ x d e = $\dots$ ($f_{def}$ $\dots$) $\dots$
    end
-     
-   class $\inbr{show\_stub_{def}}$ $f_{expr}$ $f_{def}$ =
-   object inherit [unit, _, string] $\inbr{def}$ $f_{def}$
+
+   class $\inbr{show\_stub_{def}}$ $f_{expr}$ $f_{def}$ = object 
+     inherit [unit, _, string] $\inbr{def}$ $f_{def}$
      method $\inbr{Def}$ $\iota$ x s e = $\dots$ ($f_{expr}$ $\dots$) $\dots$
    end
 \end{lstlisting}
 
-Note the absence of mutually recursive class definitions. Then, we generate a fix point operator for each mutually recursive definition:
+Обратите внимание на отсутствие рекурсивных классов.
+
+
+Затем мы сгенериуем комбинатор неподвиджной точки для этого взаимно рекурсивного определения:
 
 \begin{lstlisting}
    let $\inbr{fix_{expr, def}}$ ($c_{expr}$, $c_{def}$) =
@@ -342,32 +339,30 @@ Note the absence of mutually recursive class definitions. Then, we generate a fi
      ($t_{expr}$, $t_{def}$)
 \end{lstlisting}
 
-Here $c_{expr}$ and $c_{def}$ are object generators which take the transformation functions for all components of mutually recursive definition
-as parameters. Note, the same fix point generator can be used to construct any concrete transformation for given mutually recursive definition.
+Здесь $c_{expr}$ и $c_{def}$ являются генераторами объектов, которые принимают как параметры функции преобразования всех типов, которые встречаются во взаимно рекурсивном определении. ОБратите внимание, что тот же самый кобинатор неподвижной точки может использоваться для того, чтобы сконструировать любое конкретное преобразование для данного взаимно рекурсивногоопределения типов.
 
-With auxiliary classes and the fix point operator we can construct the default implementations for any concrete transformation:
+С этими дополнительными классами мы может сконструировать реализации по-умолчанию для любого конкретного преобразования:
 
 \begin{lstlisting}
    let $\inbr{show_{expr}}$, $\inbr{show_{def}}$ =
      $\inbr{fix_{expr,def}}$ (new $\inbr{show\_stub_{expr}}$, new $\inbr{show\_stub_{def}}$) 
 \end{lstlisting}
 
-These default implementations, first, are distributed among the typeinfo structures for relevant types and, second, are used to define conventional
-transformation classes:
+Эти преобразования по-умолчанию, во-первых, должны сохраниться во всех структурах с информацией о типах для соответсвующих типов, и во-вторых, используются для создания классов трансформацией, с ожидаемым интерфейсом:
 
 \begin{lstlisting}
-   class $\inbr{show_{expr}}$ fself =
-   object inherit $\inbr{show\_stub_{expr}}$ fself $\inbr{show_{def}}$ end
-
-   class $\inbr{show_{def}}$ fself =
-   object inherit $\inbr{show\_stub_{def}}$ $\inbr{show_{expr}}$ fself end
+   class $\inbr{show_{expr}}$ fself = object 
+     inherit $\inbr{show\_stub_{expr}}$ fself $\inbr{show_{def}}$ 
+   end
+   class $\inbr{show_{def}}$ fself = object 
+     inherit $\inbr{show\_stub_{def}}$ $\inbr{show_{expr}}$ fself 
+   end
 \end{lstlisting}
 
-Thus, we again made mutually recursive types indistinguishable from the simple ones (in terms of class interfaces), making it possible to
-uniformly generate all transformations with separate compilation support.
+Здесь мы снова сделали взаимно рекурсивные типы неотличимыми от простых (в терминах интерфейсов классов), что позволяет единообразным способом конструировать преобразования этих типов в файлах, где эти типы используются, но не объявлены.
 
-On the other hand, in order to extend an existing transformation one needs to inherit from \emph{auxiliary} classes and use the custom fix point operator.
-For our previously unsuccessful case the implementation is almost as simple as for the single type definition:
+С другой стороны, чтобы расширить имеющееся преобразование, теперь необходимо наследоваться от \emph{дополнительных} классов и использовать специальный комбинатор неподвижной точки.
+Для нашего предыдущего неудачного случая преобразование выглядит почти также просто, как и для одигочного объявления типа:
 
 \begin{lstlisting}
    let custom_show, _ =
@@ -378,22 +373,20 @@ For our previously unsuccessful case the implementation is almost as simple as f
                     new $\inbr{show\_stub_{def}}$) 
 \end{lstlisting}
 
-In the actual implementation we generate a memoizing fix point combinator, which follows the same pattern we've described in Section~\ref{memofix}. In addition,
-we put the fix point combinator into the typeinfo structure, so, for a type ``\lstinline{t}'' the fix point combinator can be addressed as
-``\lstinline{fix(t)}''. End users, however, still need to know the structure of mutually-recursive type definitions in order to use the fix point
-combinator properly.
+В конкретной реализации библиотеки мы генерируем мемоизирующий комбинатор неподвижной точки, который следует тому же шаблону, который был описан в разделе ~\ref{memofix}. К тому же, мы созраняем данный комбинатор в структуре с информацией о типе, чтобы для 
+типа ``\lstinline{t}'' этот комбинатор мог быть использован с помощью выражение 
+``\lstinline{fix(t)}''. Пользователям, однако, придется держать в уме, что тип является взаимно рекурсивным, чтобы воспользоваться комбинатором правильно.
 
-There is one subtlety with our support for mutual recursion: we rely on the property, that adding one function per type is enough to implement open recursion.
-However, generally speaking, this is not true: take, for example, the following definition:
+Однако присутствует одна слоажность с поддержкой взаимной рекурсии: мы полагаемся на то свойства, что добавление одной фукнции преобразования для типа  достаточно, чтобы реализовать открытую рекурсию. Однако, строго говоря, это не так. Например, рассмотрим следующее объявление типа:
 
 \begin{lstlisting}
    type ($\alpha$, $\beta$) a = A of $\alpha$ b * $\beta$ b
    and  $\alpha$ b = X of ($\alpha$, $\alpha$) a
 \end{lstlisting}
 
-In the parameters of constructor ``\lstinline{A}'' we have here \emph{different} parameterisations of type ``\lstinline{b}'' and, thus, we would need
-\emph{two} functions~--- for ``\lstinline{$\alpha$ b}'' and for ``\lstinline{$\beta$ b}''. However, the type ``\lstinline{a}'' is not regular~--- starting with 
-the parameterisation ``\lstinline{($\alpha$, $\beta$) a}'' we can end up with ``\lstinline{($\alpha$, $\alpha$) a}'' and ``\lstinline{($\beta$, $\beta$) a}''.
+В аргументрах конструктора ``\lstinline{A}'' мы имеем \emph{различные} параметризации типа ``\lstinline{b}'', и поэтому нам понадобятся \emph{две} функции~--- для``\lstinline{$\alpha$ b}'' и для ``\lstinline{$\beta$ b}''. Однако, тип ``\lstinline{a}'' не является регулярным~--- начав преобразование типа ``\lstinline{($\alpha$, $\beta$) a}'' мы придём к необходимости преобразования значений типов ``\lstinline{($\alpha$, $\alpha$) a}'' и ``\lstinline{($\beta$, $\beta$) a}''.
+
+Следовательно, 
 Thus, we have already ruled such definitions out. In this reasoning we assume that mutually recursive definitions are \emph{essential} in the sense that they
 can not be split into separate type declarations (i.e. that every pair of types are mutually ``reachable''). If we replace the second definition in the
 example above with, say,
