@@ -15,3 +15,6 @@ $(NAME).pdf: $(FILES_TEX)
 clean:
 	$(RM) *.bak *.out
 
+aspell:
+	aspell --mode=tex -l ru --home-dir=. --personal=personal_dict.txt  -c $(FILE)
+
