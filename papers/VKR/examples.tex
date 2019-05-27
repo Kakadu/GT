@@ -18,7 +18,6 @@
 | V     of int
 | Value of 'a       with show, gmap
 \end{lstlisting}
-
 Логическое значение может быть либо свободной логической переменной (``\lstinline{V}'') или каким-то другим значением (``\lstinline{Value}''), которое не является свободной переменной, но потенциально может содержать свободные переменные внутри себя. Чтобы преобразовывать в и из логических значений, можно воспользоваться следующими функциями:
 
 \begin{lstlisting}
@@ -45,11 +44,11 @@ Value (
   )
 )
 \end{lstlisting}
-
 которые будут иметь тип ``\lstinline{lexpr}'', объявленный как
 
 \begin{lstlisting}
-type expr' = Var of string logic | Const of int logic | Binop of lexpr * lexpr
+type expr' = Var of string logic | Const of int logic 
+           | Binop of lexpr * lexpr
 and  lexpr = expr' logic
 \end{lstlisting}
 

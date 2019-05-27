@@ -1,8 +1,10 @@
-personal_ws-1.1 ru 10 
+personal_ws-1.1 ru 12 
 Haskell
 сериализации
 функтор
 ppxlib
+сущностей
+поведений
 мемоизации
 катаморфизм
 OCaml
