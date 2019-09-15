@@ -17,7 +17,7 @@ package "ppx" (
   requires(ppx_driver)        = "ocamlgraph ppxlib"
 
   archive(ppx_driver,byte)    = "ppx_deriving_gt.cma"
-  archive(ppx_driver,native)  = "ppx_deriving_gt.cmxa show.cmx gfmt.cmx gmap.cmx foldl.cmx foldr.cmx compare.cmx eq.cmx stateful.cmx html.cmx hash.cmx"
+  archive(ppx_driver,native)  = "ppx_deriving_gt.cmxa show.cmx gfmt.cmx gmap.cmx foldl.cmx foldr.cmx compare.cmx eq.cmx stateful.cmx html.cmx hash.cmx reify.cmx"
   plugin(ppx_driver,byte)     = "ppx_deriving_gt.cma"
   plugin(ppx_driver,native)   = "ppx_deriving_gt.cmxs"
   exists_if = "ppx_deriving_gt.cma"
@@ -30,11 +30,11 @@ package "ppx" (
 
 package "ppx_gt" (
   description = "A library for easy linking to preprocessor executable"
-  # TODO: we need to specify plugins for bytecode too, isn't it 
+  # TODO: we need to specify plugins for bytecode too, isn't it
   archive(byte)    = "ppx_deriving_gt.cma"
-  archive(native)  = "ppx_deriving_gt.cmxa show.cmx gfmt.cmx gmap.cmx foldl.cmx foldr.cmx compare.cmx eq.cmx stateful.cmx html.cmx hash.cmx"
+  archive(native)  = "ppx_deriving_gt.cmxa show.cmx gfmt.cmx gmap.cmx foldl.cmx foldr.cmx compare.cmx eq.cmx stateful.cmx html.cmx hash.cmx reify.cmx"
   requires(native) = "base ppxlib ocamlgraph"
- 
+
 )
 package "expander" (
   description = "Contains code that actually generates the code"
@@ -111,10 +111,16 @@ package "syntax" (
     archive(syntax,preprocessor) = "hash.cmo"
     archive(syntax,toploop) = "hash.cmo"
   )
+  package "reify" (
+    description = "Plugin 'reify'"
+    requires = "GT.syntax"
+    archive(syntax,preprocessor) = "reify.cmo"
+    archive(syntax,toploop) = "reify.cmo"
+  )
   package "all" (
     description = "All supported syntaxes"
     requires = "GT.syntax"
-    archive(syntax,preprocessor) = "compare.cmo eq.cmo foldl.cmo foldr.cmo gmap.cmo eval.cmo show.cmo gfmt.cmo html.cmo stateful.cmo hash.cmo"
-    archive(syntax,toploop)      = "compare.cmo eq.cmo foldl.cmo foldr.cmo gmap.cmo eval.cmo show.cmo gfmt.cmo html.cmo stateful.cmo hash.cmx"
+    archive(syntax,preprocessor) = "compare.cmo eq.cmo foldl.cmo foldr.cmo gmap.cmo eval.cmo show.cmo gfmt.cmo html.cmo stateful.cmo hash.cmo reify.cmo"
+    archive(syntax,toploop)      = "compare.cmo eq.cmo foldl.cmo foldr.cmo gmap.cmo eval.cmo show.cmo gfmt.cmo html.cmo stateful.cmo hash.cmx reify.cmx"
   )
 )

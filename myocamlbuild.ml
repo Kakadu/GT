@@ -27,6 +27,7 @@ let make_plugins_args ~is_byte =
     ; "gfmt"
     ; "html"
     ; "hash"
+    ; "reify"
 (*    ; "htmlTy" *)
     ]
   in

@@ -20,6 +20,36 @@
 type plugin_args = (Ppxlib.longident * Ppxlib.expression) list
 (** A type that stores additional arguments passed to each plugin. *)
 
+class virtual ['loc, 'exp, 'typ, 'type_arg, 'ctf, 'cf, 'str, 'sign ] public_plugin = object
+  (** Name of a trait (and of plugin too). It is used for naming new classes and
+    * functions related to plugin.
+    *)
+  method virtual trait_name : string
+
+  (** Generate signature items for single type definition. *)
+  method virtual do_single_sig : loc:'loc -> is_rec:bool -> Ppxlib.type_declaration ->
+    'sign list
+
+  (** Generate structure items for single type definition. *)
+  method virtual do_single : loc:'loc -> is_rec:bool -> Ppxlib.type_declaration ->
+    'str list
+
+  (** Generate structure items for mutally recursive type declarations. *)
+  method virtual do_mutuals :
+    loc:'loc ->
+    is_rec:bool ->
+    Ppxlib.type_declaration list -> 'str list
+
+  method virtual do_mutuals_sigs : loc:'loc -> is_rec:bool -> 'sign list
+
+  method virtual make_final_trans_function_typ : loc:'loc -> Ppxlib.type_declaration -> 'typ
+
+  method virtual need_inh_attr : bool
+
+  method virtual eta_and_exp: center:'exp -> Ppxlib.type_declaration -> 'exp
+
+
+end
 (** Base class type for all plugins.
 
     Is parametrized by output AST types for convenience. All plugins receive input data as
@@ -27,15 +57,12 @@ type plugin_args = (Ppxlib.longident * Ppxlib.expression) list
 
 *)
 class virtual ['loc, 'exp, 'typ, 'type_arg, 'ctf, 'cf, 'str, 'sign ] typ_g = object
+  inherit ['loc, 'exp, 'typ, 'type_arg, 'ctf, 'cf, 'str, 'sign ] public_plugin
 
   (** {1 Methods that are specific for a concrete plugin implementation } *)
 
   (* They are very likely will need to be implemented when new plugin is added. *)
 
-  (** Name of a trait (and of plugin too). It is used for constructing new classes and
-    * functions related to plugin.
-    *)
-  method virtual trait_name : string
 
   (** Inherited attribute for whole type declaration. Is is defined by plugin kind. *)
   method virtual inh_of_main : loc:'loc -> Ppxlib.type_declaration -> 'typ
@@ -69,20 +96,6 @@ class virtual ['loc, 'exp, 'typ, 'type_arg, 'ctf, 'cf, 'str, 'sign ] typ_g = obj
 
   (** {1 Methods that are specific for all plugins and unlikely will need to be override } *)
 
-  (** Generate signature items for single type definition. *)
-  method virtual do_single_sig :
-    loc:'loc ->
-    is_rec:bool ->
-    Ppxlib.type_declaration ->
-    'sign list
-
-  (** Generate structure items for single type definition. *)
-  method virtual do_single :
-    loc:'loc ->
-    is_rec:bool ->
-    Ppxlib.type_declaration ->
-    'str list
-
   (** Generate structure items a type extension. Beta feature. *)
   (* method virtual do_typext_str: loc:'loc -> Ppxlib.type_extension -> 'str list *)
 
@@ -90,20 +103,6 @@ class virtual ['loc, 'exp, 'typ, 'type_arg, 'ctf, 'cf, 'str, 'sign ] typ_g = obj
   method virtual make_trans_function_name: Ppxlib.type_declaration -> string
   (** Generate type of a transformation function. *)
   method virtual make_trans_function_typ : loc:'loc -> Ppxlib.type_declaration -> 'typ
-
-  (** Generate structure items for mutally recursive type declarations. *)
-  method virtual do_mutuals :
-    loc:'loc ->
-    is_rec:bool ->
-    Ppxlib.type_declaration list -> 'str list
-
-  method virtual do_mutuals_sigs : loc:'loc -> is_rec:bool -> 'sign list
-
-
-  method virtual need_inh_attr : bool
-
-  method virtual eta_and_exp: center:'exp -> Ppxlib.type_declaration -> 'exp
-  method virtual make_final_trans_function_typ : loc:'loc -> Ppxlib.type_declaration -> 'typ
 
 end
 
@@ -124,5 +123,5 @@ module type MAKE =
     open AstHelpers
     val trait_name : string
     val create : plugin_args -> Ppxlib.type_declaration list ->
-      (loc, Exp.t, Typ.t, type_arg, Ctf.t, Cf.t, Str.t, Sig.t) typ_g
+      (loc, Exp.t, Typ.t, type_arg, Ctf.t, Cf.t, Str.t, Sig.t) public_plugin
   end
