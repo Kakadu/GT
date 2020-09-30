@@ -3,4 +3,7 @@
 *.bbl
 *.blg
 *.pag
+*.log
+*.out 
+*.pdf
 
