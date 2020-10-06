@@ -7,12 +7,18 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{csquotes}
+\usepackage{comment}
 \usepackage[final]{listings}
 \usepackage{tabularx}
 \newcolumntype{Y}{>{\centering\arraybackslash}X}
 \newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+\newcommand{\ocaml}{\textsc{OCaml}}
+\newcommand{\visitors}{\textsc{Visitors}}
+\newcommand{\ocanren}{\textsc{OCanren}}
+\newcommand{\GT}{\textsc{GT}}
 
 
 \lstdefinelanguage{ocaml}{
@@ -68,7 +74,9 @@ language=ocaml
 \rubrika{ЯЗЫКИ, КОМПИЛЯТОРЫ И СИСТЕМЫ ПРОГРАММИРОВАНИЯ}
 \dateinput{??.??.201?}
 
-\rusabstr{Годовой отчет о работе научно-исследовательского семинара по компьютерной алгебре.}
+\rusabstr{
+%Годовой отчет о работе научно-исследовательского семинара по компьютерной алгебре.
+}
 
 \author{
 {\bfseries Д.~С.~Косарев*, Д.~Ю.~Булычев*}
@@ -87,6 +95,9 @@ language=ocaml
 \maketitle
 \setcounter{page}{3}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{comment}
+
+
 \He{О СЕМИНАРЕ}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -910,14 +921,15 @@ ALDOR и NAG link.
 
 Дается характеристика веб-сервиса Mathpar (http://mathpar.com), предназначенного  для проведения символьных и численных
 вычислений в научных исследованиях, инженерных расчетах и образовании.
+\end{comment}
 
 
 \input{intro.tex}
 \input{exposition.tex}
-\input{impl.tex}
+%\input{impl.tex}
 \input{examples.tex}
-\input{related.tex}
-\input{conclusion.tex}
+%\input{related.tex}
+%\input{conclusion.tex}
 
 
 
@@ -930,6 +942,10 @@ ALDOR и NAG link.
 \begin{thebibliography}{99}
 
 \small
+
+\bibitem{TODO}
+{\em TODO} TODO
+\begin{comment}
 \bibitem{AZ97}
 {\em Абрамов С.А., Зима Е.В.} Семинар по компьютерной алгебре на
 факультете вычислительной математики и кибернетики МГУ в 1995--1996 г.
@@ -1002,7 +1018,7 @@ Dubna, 2009.
 компьютерной алгебре в 2010-2011 г.  // Программирование, 2012, No 2. С. 3--10.
 
 %
-
+\end{comment}
 \end{thebibliography}
 
 \label{lastpage}
