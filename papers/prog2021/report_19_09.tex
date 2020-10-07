@@ -16,6 +16,7 @@
 \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 
 \newcommand{\ocaml}{\textsc{OCaml}}
+\newcommand{\haskell}{\textsc{Haskell}~}
 \newcommand{\visitors}{\textsc{Visitors}}
 \newcommand{\ocanren}{\textsc{OCanren}}
 \newcommand{\GT}{\textsc{GT}}
@@ -80,10 +81,10 @@ language=ocaml
 
 \author{
 {\bfseries ƒ.~—.~ осарев*, ƒ.~ё.~Ѕулычев*}
-\\ {\itshape *¬ычислительный центр им. ј. ј. ƒородницына ‘едерального исследовательского центра Ђ»нформатика и управлениеї –јЌ}
-\\ {\slshape 119333} {\itshape FIXME ћосква, ул. ¬авилова, д.} {\slshape 40}
-\\ {\itshape FIXME *ћосковский государственный университет им. ћ. ¬. Ћомоносова}
-\\ {\slshape 1199991} {\itshape FIXME ћосква, √—ѕ-1, Ћенинские горы, д.} {\slshape 1}
+%\\ {\itshape *¬ычислительный центр им. ј. ј. ƒородницына ‘едерального исследовательского центра Ђ»нформатика и управлениеї –јЌ}
+%\\ {\slshape 119333} {\itshape FIXME ћосква, ул. ¬авилова, д.} {\slshape 40}
+\\ {\itshape —анкт-ѕетербургский государственный университет}
+\\ {\slshape 199034} {\itshape  —анкт-ѕетербург, ”ниверситетска€ наб., д.} {\slshape  7Ц9}
 \\ {\itshape E-mail: Dmitrii.Kosarev@pm.me, dboulytchev@math.spbu.ru}}
 \title{ќЅќЅў≈ЌЌќ≈ ѕ–ќ√–јћћ»–ќ¬јЌ»≈ —  ќћЅ»Ќј“ќ–јћ» » ќЅЏ≈ “јћ»}
 %\thanks{~}
@@ -927,9 +928,9 @@ ALDOR и NAG link.
 \input{intro.tex}
 \input{exposition.tex}
 %\input{impl.tex}
-\input{examples.tex}
-%\input{related.tex}
-%\input{conclusion.tex}
+%\input{examples.tex}
+\input{related.tex}
+\input{conclusion.tex}
 
 
 
@@ -944,7 +945,163 @@ ALDOR и NAG link.
 \small
 
 \bibitem{TODO}
-{\em TODO} TODO
+{\em Boulytchev D.} Combinators and Type-driven Transformers in
+Objective Caml // Sci. Comput. Program. 2015.  v. 114. no. C. pp. 57Ц73.
+
+\bibitem{brooks}
+{\em Brooks Jr. F. P.}  The Mythical Man-month (Anniversary
+Ed.). Ч Boston, MA, USA : Addison-Wesley Longman Publishing Co.,
+Inc., 1995. Ч ISBN: 0-201-83595-9.
+
+\bibitem{}
+{\em Boulytchev Dmitry, Mechtaev Sergey.} Efficiently Scrapping Boilerplate
+Code in OCaml // Workshop on ML. Ч ML Т11. Ч Tokyo, Japan, 2011.
+
+\bibitem{}
+{\em Chakravarty Manuel M. T., Ditu Gabriel, Leshchinskiy Roman.} In-
+stant Generics : Fast and Easy. Ч 2009.
+
+\bibitem{}
+{\em Filli?tre Jean-Christophe, Conchon Sylvain.} Type-safe Modular Hash-
+consing // Proceedings of the 2006 Workshop on ML. Ч ML Т06. Ч
+New York, NY, USA : ACM, 2006. Ч P. 12Ц19. 
+
+\bibitem{}
+{\em  Garrigue Jacques}. Programming with Polymorphic Variants // Work-
+shop on ML. Ч 1998.
+\bibitem{}
+{\em Garrigue Jacques}. Code reuse through polymorphic variants // In
+Workshop on Foundations of Software Engineering. Ч 2000.
+\bibitem{}
+{\em  Gibbons Jeremy.} Calculating Functional Programs // Algebraic and
+Coalgebraic Methods in the Mathematics of Program Construction:
+International Summer School and Workshop Oxford, UK, April 10Ц
+14, 2000 Revised Lectures / Ed. by Roland Backhouse, Roy Crole,
+Jeremy Gibbons. Ч Berlin, Heidelberg : Springer Berlin Heidelberg,
+2002. Ч P. 151Ц203. %Ч ISBN: 978-3-540-47797-6. 
+%Ч Access mode: https://doi.org/10.1007/3-540-47797-7_5.
+
+\bibitem{}
+{\em Gibbons Jeremy.} Datatype-generic Programming // Proceedings
+of the 2006 International Conference on Datatype-generic Program-
+ming. Ч SSDGPТ06. Ч Berlin, Heidelberg : Springer-Verlag, 2007. Ч
+P. 1Ц71. Ч 
+%Access mode: http://dl.acm.org/citation.cfm?id=1782894.1782895.
+
+[12] Hinze Ralf. Generics for the Masses // J. Funct. Program. Ч 2006. Ч
+Jul. Ч Vol. 16, no. 4-5. Ч P. 451Ц483. Ч 
+%Access mode: http://dx.doi.org/10.1017/S0956796806006022.
+
+\bibitem{}
+{\em Hutton Graham.} A Tutorial on the Universality and Expressive-
+ness of Fold // J. Funct. Program. Ч 1999. Ч Jul. Ч Vol. 9,
+no. 4. Ч P. 355Ц372. Ч 
+%Access mode: http://dx.doi.org/10.1017/S0956796899003500.
+
+\bibitem{}
+{\em Kiselyov Oleg, Jones Simon Peyton, Shan Chung-chieh. } Fun with
+Type Functions // Reflections on the Work of C.A.R. Hoare / Ed. by
+A.W. Roscoe, Cliff B. Jones, Kenneth R. Wood. Ч London : Springer
+London, 2010. Ч P. 301Ц331. Ч ISBN: 978-1-84882-912-1. 
+%Ч Access mode: https://doi.org/10.1007/978-1-84882-912-1_14.
+
+\bibitem{}
+{\em Knuth Donald E.} Semantics of context-free languages // Mathemati-
+cal systems theory. Ч 1968. Ч Jun. Ч Vol. 2, no. 2. Ч P. 127Ц145. Ч
+%Access mode: https://doi.org/10.1007/BF01692511.
+
+\bibitem{OCanren}
+{\em Kosarev Dmitry, Boulytchev Dmitry.} Typed Embedding of a Rela-
+tional Language in OCaml // Proceedings ML Family Workshop /
+OCaml Users and Developers workshops, ML/OCAML 2016, Nara,
+Japan, September 22-23, 2016. Ч 2016. Ч P. 1Ц22. 
+%Ч Access mode:https://doi.org/10.4204/EPTCS.285.1.
+
+\bibitem{}
+{\em L\"ammel Ralf, Jones Simon Peyton.} Scrap Your Boilerplate: A Prac-
+tical Design Pattern for Generic Programming // SIGPLAN Not. Ч
+2003. Ч Jan. Ч Vol. 38, no. 3. Ч P. 26Ц37. 
+%Ч Access mode: http://doi.acm.org/10.1145/640136.604179.
+
+\bibitem{}
+{\em L\"ammel Ralf, Jones Simon Peyton.} Scrap More Boilerplate: Reflec-
+tion, Zips, and Generalised Casts // Proceedings of the Ninth ACM
+SIGPLAN International Conference on Functional Programming. Ч
+ICFP Т04. Ч New York, NY, USA : ACM, 2004. Ч P. 244Ц255. 
+%Ч Ac-cess mode: http://doi.acm.org/10.1145/1016850.1016883.
+\bibitem{}
+Lammel Ralf, Jones Simon Peyton. Scrap Your Boilerplate with Class:
+Extensible Generic Functions // SIGPLAN Not. Ч 2005. Ч Sep. Ч
+Vol. 40, no. 9. Ч P. 204Ц215. %Ч Access mode: http://doi.acm.org/10.1145/1090189.1086391.
+\bibitem{}
+Meijer Erik, Fokkinga Maarten, Paterson Ross. Functional Program-
+ming with Bananas, Lenses, Envelopes and Barbed Wire. Ч Springer-
+Verlag, 1991. Ч P. 124Ц144.
+\bibitem{}
+Oliveira Bruno C. d. S., Cook William R. Extensibility for the
+Masses: Practical Extensibility with Object Algebras // Proceed-
+ings of the 26th European Conference on Object-Oriented Pro-
+gramming. Ч ECOOPТ12. Ч Berlin, Heidelberg : Springer-Verlag,
+2012. Ч P. 2Ц27.
+\bibitem{}
+[22] Pottier Fran?ois. Visitors Unchained // Proc. ACM Program.
+Lang. Ч 2017. Ч Aug. Ч Vol. 1, no. ICFP. Ч P. 28:1Ц28:28. 
+%Ч Access mode: http://doi.acm.org/10.1145/3110272.
+\bibitem{}
+[23] Rendel Tillmann, Brachth?user Jonathan Immanuel, Oster-
+mann Klaus. From Object Algebras to Attribute Grammars //
+ SIGPLAN Not. Ч 2014. Ч Oct. Ч Vol. 49, no. 10. Ч P. 377Ц395. Ч
+% Access mode: http://doi.acm.org/10.1145/2714064.2660237.
+
+\bibitem{}
+{\em Haoyuan Zhang, Zewei Chu, Bruno C.d. S. Oliveira, Tijs van der Storm}
+Scrap Your Boilerplate With Object Algebras  // Proceed-
+ ings of the Object-oriented Programming, Systems, Languages, and
+ Applications (OOPSLA, 2015). Ч New York, United States, 2015. Ч
+% Access mode: https://hal.inria.fr/hal-01261477.
+
+\bibitem{}
+{\em Swierstra Wouter.} Data Types \`a La Carte // J. Funct. Program. Ч
+ 2008. Ч Jul. Ч Vol. 18, no. 4. Ч P. 423Ц436.
+% Access mode: http: //dx.doi.org/10.1017/S0956796808006758.
+
+\bibitem{}
+{\em Viera Marcos, Swierstra S. Doaitse, Swierstra Wouter.} Attribute
+ Grammars Fly First-class: How to Do Aspect Oriented Program-
+ ming in Haskell // Proceedings of the 14th ACM SIGPLAN In-
+ ternational Conference on Functional Programming. Ч ICFP Т09. Ч
+ New York, NY, USA : ACM, 2009. Ч P. 245Ц256. 
+% Ч Access mode: http://doi.acm.org/10.1145/1596550.1596586.
+
+ [27] Wadler Philip. The Expression Problem. Ч 1998. Ч Dec.
+ 
+\bibitem{}
+{\em Wadler P., Blott S.} How to Make Ad-hoc Polymorphism Less Ad
+ Hoc // Proceedings of the 16th ACM SIGPLAN-SIGACT Sympo-
+ sium on Principles of Programming Languages. Ч POPL Т89. Ч New
+ York, NY, USA : ACM, 1989. Ч P. 60Ц76. 
+% Ч Access mode: http: //doi.acm.org/10.1145/75277.75283.
+
+ [29] White Leo, Bour Fr\'ed\'eric, Yallop Jeremy. Modular implicits // Elec-
+ tronic Proceedings in Theoretical Computer Science. Ч 2015. Ч 12. Ч
+ Vol. 198.
+ 
+ \bibitem{}
+{\em Yallop Jeremy.} Practical Generic Programming in OCaml // Pro-
+ ceedings of the 2007 Workshop on Workshop on ML. Ч ML Т07. Ч
+ New York, NY, USA : ACM, 2007. Ч P. 83Ц94. 
+
+\bibitem{} 
+{\em  Yallop Jeremy.} Staged Generic Programming // Proc. ACM Program.
+ Lang. Ч 2017. Ч Aug. Ч Vol. 1, no. ICFP. Ч P. 29:1Ц29:29. 
+% Ч Access mode: http://doi.acm.org/10.1145/3110273.
+
+ \bibitem{camlp5} 
+camlp5. Ч https://camlp5.github.io.
+ 
+\bibitem{ppxlib} 
+ppxlib. Ч https://github.com/ocaml-ppx/ppxlib.
+ 
 \begin{comment}
 \bibitem{AZ97}
 {\em јбрамов —.ј., «има ≈.¬.} —еминар по компьютерной алгебре на
