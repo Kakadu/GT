@@ -9,20 +9,27 @@
 \usepackage{csquotes}
 \usepackage{comment}
 \usepackage[final]{listings}
+
+\begin{comment}
 \usepackage{tabularx}
 \newcolumntype{Y}{>{\centering\arraybackslash}X}
 \newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\end{comment}
+
 
 \newcommand{\ocaml}{\textsc{OCaml}}
 \newcommand{\haskell}{\textsc{Haskell}}
 \newcommand{\visitors}{\textsc{Visitors}}
 \newcommand{\ocanren}{\textsc{OCanren}}
+\newcommand{\OCanren}{\ocanren}
 \newcommand{\scheme}{\textsc{Scheme}}
 \newcommand{\Scala}{\textsc{Scala}}
 \newcommand{\GT}{\textsc{GT}}
-%
+\newcommand{\PPX}{\textsc{PPX}}
+\newcommand{\camlpfive}{\textsc{Camlp5}}
+
 
 \lstdefinelanguage{ocaml}{
 keywords={@type, function, fun, let, in, match, with, when, class, type,
@@ -67,7 +74,7 @@ language=ocaml
 
 
 \journalnumber{?}
-\curyear{201?}
+\curyear{2021}
 \authorlist{ ќ—ј–≈¬ » ƒ–.}
 \titlehead{ќбобщЄнное программирование с комбинаторами и объектами}
 \headerdef
@@ -931,8 +938,17 @@ ALDOR и NAG link.
 \input{plan.tex}
 %\input{intro2.tex}
 %\input{exposition.tex}%
-%\input{impl.tex}
-%\input{examples.tex}
+\input{impl.tex}
+\section{ќбзор похожих решений}
+\label{sec:relatedworks}
+
+\input{examples.tex}
+
+\section{ќбсуждение результатов}
+\label{sec:discussion}
+\input{discussion.tex}
+
+
 %\input{related.tex}
 \input{conclusion.tex}
 
@@ -962,8 +978,7 @@ Objective Caml // Sci. Comput. Program. 2015.  v. 114. no. C. pp. 57Ц73.
 Code in OCaml // Workshop on ML. Ч ML Т11. Ч Tokyo, Japan, 2011.
 
 \bibitem{InstantGenerics}
-{\em Chakravarty M. M. T., Ditu G., Leshchinskiy R.} In-
-stant Generics : Fast and Easy. Ч 2009.
+{\em Chakravarty M. M. T., Ditu G., Leshchinskiy R.} In\-stant Generics : Fast and Easy. Ч 2009.
 
 \bibitem{HC}
 {\em Filli\^atre J.-C., Conchon S.} Type-safe Modular Hashconsing // Proceedings of the 2006 Workshop on ML. Ч ML Т06. Ч
@@ -973,7 +988,7 @@ New York, NY, USA : ACM, 2006. Ч P. 12Ц19.
 {\em  Garrigue J.} Programming with Polymorphic Variants // Workshop on ML. Ч 1998.
 
 \bibitem{PolyVarReuse}
-{\em Garrigue J.}. Code reuse through polymorphic variants // In
+{\em Garrigue J.} Code reuse through polymorphic variants // In
 Workshop on Foundations of Software Engineering. Ч 2000.
 
 \bibitem{CalculatingFP}
@@ -987,8 +1002,7 @@ Jeremy Gibbons. Ч Berlin, Heidelberg : Springer Berlin Heidelberg,
 
 \bibitem{DGP}
 {\em Gibbons J.} Datatype-generic Programming // Proceedings
-of the 2006 International Conference on Datatype-generic Program-
-ming. Ч SSDGPТ06. Ч Berlin, Heidelberg : Springer-Verlag, 2007. Ч
+of the 2006 International Conference on Datatype-generic Program\-ming. Ч SSDGPТ06. Ч Berlin, Heidelberg : Springer-Verlag, 2007. Ч
 P. 1Ц71.% Ч 
 %Access mode: http://dl.acm.org/citation.cfm?id=1782894.1782895.
 
@@ -998,8 +1012,7 @@ Jul. Ч Vol. 16, no. 4-5. Ч P. 451Ц483.
 %Access mode: http://dx.doi.org/10.1017/S0956796806006022.
 
 \bibitem{Fold}
-{\em Hutton G.} A Tutorial on the Universality and Expressive-
-ness of Fold // J. Funct. Program. Ч 1999. Ч Jul. Ч Vol. 9,
+{\em Hutton G.} A Tutorial on the Universality and Expressive\-ness of Fold // J. Funct. Program. Ч 1999. Ч Jul. Ч Vol. 9,
 no. 4. Ч P. 355Ц372. %Ч Access mode: http://dx.doi.org/10.1017/S0956796899003500.
 
 \bibitem{TypeFamilies}
@@ -1010,8 +1023,7 @@ London, 2010. Ч P. 301Ц331. %Ч ISBN: 978-1-84882-912-1.
 %Ч Access mode: https://doi.org/10.1007/978-1-84882-912-1_14.
 
 \bibitem{AGKnuth}
-{\em Knuth D.E.} Semantics of context-free languages // Mathemati-
-cal systems theory. Ч 1968. Ч Jun. Ч Vol. 2, no. 2. Ч P. 127Ц145. 
+{\em Knuth D.E.} Semantics of context-free languages // Mathemati\-cal systems theory. Ч 1968. Ч Jun. Ч Vol. 2, no. 2. Ч P. 127Ц145. 
 %Ч Access mode: https://doi.org/10.1007/BF01692511.
 
 \bibitem{OCanren}
@@ -1067,9 +1079,9 @@ Scrap Your Boilerplate With Object Algebras  // Proceedings of the Object-orient
 
 \bibitem{AGSwierstra}
 {\em Viera M., Swierstra S. D., Swierstra W.} Attribute
- Grammars Fly First-class: How to Do Aspect Oriented Program-
- ming in Haskell // Proceedings of the 14th ACM SIGPLAN In-
- ternational Conference on Functional Programming. Ч ICFP Т09. Ч
+ Grammars Fly First-class: How to Do Aspect Oriented 
+ Program\-ming in Haskell // Proceedings of the 14th ACM SIGPLAN 
+ In\-ternational Conference on Functional Programming. Ч ICFP Т09. Ч
  New York, NY, USA : ACM, 2009. Ч P. 245Ц256. 
 % Ч Access mode: http://doi.acm.org/10.1145/1596550.1596586.
 
@@ -1107,10 +1119,13 @@ Objects, classes and modules in Objective Caml / Proceedings of International Co
 
 
  \bibitem{camlp5} 
-camlp5. Ч https://camlp5.github.io.
+camlp5. Ч \url{https://camlp5.github.io}.
  
 \bibitem{PPXLib} 
-ppxlib. Ч https://github.com/ocaml-ppx/ppxlib.
+ppxlib. Ч \url{https://github.com/ocaml-ppx/ppxlib}.
+
+\bibitem{ppxderiving} 
+ppx\_deriving. Ч \url{https://github.com/ocaml-ppx/ppx\_deriving}
  
 \begin{comment}
 \bibitem{AZ97}
