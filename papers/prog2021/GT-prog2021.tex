@@ -9,6 +9,7 @@
 \usepackage{csquotes}
 \usepackage{comment}
 \usepackage[final]{listings}
+\usepackage{cmap}   % for copy-pastable text
 
 \begin{comment}
 \usepackage{tabularx}
@@ -936,9 +937,17 @@ ALDOR и NAG link.
 
 \input{intro.tex}
 \input{plan.tex}
+\section{¬ведение в обобщЄнное программирование}
+\label{sec:tutorial}
+\input{tut.tex}
+
 %\input{intro2.tex}
-%\input{exposition.tex}%
+%\input{exposition.tex}
+
+\section{ћетод}
+\label{sec:implementation}
 \input{impl.tex}
+
 \section{ќбзор похожих решений}
 \label{sec:relatedworks}
 \input{related}
@@ -1117,15 +1126,18 @@ Computer Science. Ч Open Publishing Association, 2018. Ч P. 59Ц100.
 Objects, classes and modules in Objective Caml / Proceedings of International Conference on Functional Programming, Paris /     Association for Computing Machinery, 1999.
 
 
- \bibitem{camlp5} 
-camlp5. Ч \url{https://camlp5.github.io}.
+\bibitem{camlp5} 
+\camlpfive{}. --- \url{https://camlp5.github.io}.
  
 \bibitem{PPXLib} 
-ppxlib. Ч \url{https://github.com/ocaml-ppx/ppxlib}.
+\textsc{ppxlib}. --- \url{https://github.com/ocaml-ppx/ppxlib}.
 
 \bibitem{ppxderiving} 
-ppx\_deriving. Ч \url{https://github.com/ocaml-ppx/ppx\_deriving}
- 
+ppx\_deriving. --- \url{https://github.com/ocaml-ppx/ppx\_deriving}
+
+\bibitem{dotNetSG}
+.NET source Generators. --- \url{https://github.com/dotnet/roslyn/blob/master/docs/features/source-generators.md}
+
 \begin{comment}
 \bibitem{AZ97}
 {\em јбрамов —.ј., «има ≈.¬.} —еминар по компьютерной алгебре на
