@@ -340,14 +340,14 @@ to\hsize{\hfil\box\@tempboxa\hfil}
 \sloppy
 \flushbottom
 
-\parindent 1em
-\leftmargini 2em
-\leftmarginv .5em
-\leftmarginvi .5em
+%\parindent 1em
+%\leftmargini 2em
+%\leftmarginv .5em
+%\leftmarginvi .5em
 %\oddsidemargin 30pt
 %\evensidemargin 30pt
-\marginparwidth 48pt 
-\marginparsep 10pt 
+%\marginparwidth 48pt 
+%\marginparsep 10pt 
 
 %\input{russian.sty}
 
@@ -357,8 +357,8 @@ to\hsize{\hfil\box\@tempboxa\hfil}
 
 % NEW FROM ARTICLE TEX-FILE
 
-\setlength{\columnsep}{0.5cm}
-\pagestyle{fancyplain}
+%\setlength{\columnsep}{0.5cm}
+%\pagestyle{fancyplain}
 
 \def\journalnumber#1{\def\@journumb{#1}}
 \def\curyear#1{\def\@curyear{#1}}
@@ -418,18 +418,19 @@ ${\small{\mathbf 4}^*}$\else \ifnum\thepage=65 \hspace{-10.25cm}{\small\bf
 %\hspace{8.0cm}${\small{\mathbf 5}^*}$
 \else \small\thepage\fi\fi\fi\fi\fi\fi\fi\fi}{}}
 %\gdef\@journumb{}\gdef\@authorlist{}\gdef\@titlehead{}
+
 }                                          % End header definition
 %\setlength{\headrulewidth}{0pt}
-\renewcommand{\headrulewidth}{0pt}
+%\renewcommand{\headrulewidth}{0pt}
 
 %\raggedbottom
 
-\newcommand{\contitem}[3]{
-    \noindent\begin{minipage}[b]{12.5cm}
-      \begin{description}
-        \item[ #1]  #2  \dotfill\
-      \end{description}
-    \end{minipage} \hfill   #3}
+%\newcommand{\contitem}[3]{
+%    \noindent\begin{minipage}[b]{12.5cm}
+%      \begin{description}
+%        \item[ #1]  #2  \dotfill\
+%      \end{description}
+%    \end{minipage} \hfill   #3}
 
 %\newcommand{\headrule}[2]{
 %{\large\bfseries\noindent{\cyr\CYRP\ \CYRR\ \CYRO\ \CYRG\ \CYRR\ \CYRA\ \CYRM\ \CYRM\ \CYRI\ \CYRR\ \CYRO\ \CYRV\ \CYRA\ \CYRN\ \CYRI\ \CYRE} \hfill #1 . #2} \\
@@ -467,24 +468,25 @@ ${\small{\mathbf 4}^*}$\else \ifnum\thepage=65 \hspace{-10.25cm}{\small\bf
 %  example of using \insertfig
 %  \insertfig{figr1.pcx}{V4.3}{H0}{Fig 1}{Çàäà÷à îãðàíè÷åíèé â
 %  ãåîìåòðè÷åñêîì ìîäåëèðîâàíèè}
-\def\insertplot#1#2#3{\par
- \hbox{%
-  \hskip #3 true cm
-   \vbox to #2 true cm{\par\noindent
-    \special{em: graph #1}
-    \vfil
-   }%
-  }\par\noindent
- }
+%\def\insertplot#1#2#3{\par
+% \hbox{%
+%  \hskip #3 true cm
+%   \vbox to #2 true cm{\par\noindent
+%    \special{em: graph #1}
+%    \vfil
+%   }%
+%  }\par\noindent
+% }
 
-\def\newfootnote#1
-{\setlength{\parindent}{0em} \footnote{#1} \setlength{\parindent}{1em}}
+%\def\newfootnote#1
+%{\setlength{\parindent}{0em} \footnote{#1} \setlength{\parindent}{1em}}
+%
+%\def\insertfig#1#2#3#4#5{\par
+%\begin{figure}[hbt]
+%\insertplot {#1}{#2}{#3}
+%\caption {#5 \label{#4}}
+%\end{figure}
+%\par
+%}
 
-\def\insertfig#1#2#3#4#5{\par
-\begin{figure}[hbt]
-\insertplot {#1}{#2}{#3}
-\caption {#5 \label{#4}}
-\end{figure}
-\par
-}
 %-------------- Êîíåö îïðåäåëåíèé êîìàíä äëÿ âñòàâêè êàðòèíîê
