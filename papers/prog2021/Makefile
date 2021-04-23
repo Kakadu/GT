@@ -11,3 +11,6 @@ $(OUT).pdf:	$(FILES)
 clean:
 	$(RM) *.synctex.gz *.log *.out *.aux
 
+.PHONY: debs
+debs:
+	sudo apt install texlive-latex-extra  texlive-lang-cyrillic  
