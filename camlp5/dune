@@ -19,7 +19,7 @@
  (deps
   %{project_root}/config/package-doc.cfg
   (:cmas
-   ../common/GTCommon.cmxa
+   ../common/common.cmxa
    pa_gt.cmxa
    ../plugins/show.cmxa
    ../plugins/gmap.cmxa
@@ -47,7 +47,7 @@
 (rule
  (targets pp5+gt+plugins+o.exe)
  (deps
-  ../common/GTCommon.cmxa
+  ../common/common.cmxa
   pa_gt.cmxa
   ../plugins/show.cmxa
   ../plugins/gmap.cmxa
@@ -76,7 +76,8 @@
  (targets pp5+gt+dump.exe)
  (deps
   %{project_root}/config/package-doc.cfg
-  (:cmas %{project_root}/common/GTCommon.cmxa pa_gt.cmxa))
+  (package GT-common)
+  (:cmas %{project_root}/common/common.cmxa))
  (action
   (run
    mkcamlp5.opt
@@ -85,7 +86,7 @@
    -package
    camlp5,camlp5.pa_o,camlp5.pr_dump,camlp5.extend,camlp5.quotations,base
    -package
-   logger,ppxlib,ocamlgraph
+   logger,ppxlib,ocamlgraph,GT-p5
    %{read-lines:../config/package-doc.cfg}
    %{cmas}
    -o

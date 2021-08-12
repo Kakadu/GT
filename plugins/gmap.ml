@@ -18,7 +18,6 @@
 open Base
 open Ppxlib
 open Printf
-open GTCommon
 open HelpersBase
 
 let trait_name = "gmap"
@@ -199,9 +198,9 @@ class g args tdecls = object(self: 'self)
       )
       ]
 
-  method! make_inh ~loc = 
+  method! make_inh ~loc =
     (Pat.unit ~loc, Exp.unit ~loc)
-    
+
 end
 
 let create = (new g :> P.plugin_constructor)

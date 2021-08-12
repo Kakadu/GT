@@ -1,6 +1,6 @@
 (*
  * Generic Transformers: `format` plugin.
- * Copyright (C) 2016-2020
+ * Copyright (C) 2016-2021
  *   Dmitrii Kosarev a.k.a Kakadu
  * St.Petersburg State University, JetBrains Research
  *)
@@ -20,7 +20,6 @@
 open Base
 open Ppxlib
 open Printf
-open GTCommon
 open HelpersBase
 
 let trait_name = "fmt"

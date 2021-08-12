@@ -22,7 +22,6 @@
 
 open Base
 open Ppxlib
-open GTCommon
 open HelpersBase
 
 let trait_name = "enum"

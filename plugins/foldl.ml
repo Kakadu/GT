@@ -1,6 +1,6 @@
 (*
  * Generic transformers: plugins.
- * Copyright (C) 2016-2019
+ * Copyright (C) 2016-2021
  *   Dmitrii Kosarev aka Kakadu
  * St.Petersburg State University, JetBrains Research
  *)
@@ -22,7 +22,6 @@
 open Base
 open Ppxlib
 open Printf
-open GTCommon
 open HelpersBase
 
 let trait_name = "foldl"

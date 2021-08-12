@@ -38,9 +38,9 @@
  (flags
   (:standard -w -27-33)))
 
-(library
- (name syntax_p5)
- (public_name GT.syntax)
- (wrapped false)
- (modules)
- (libraries GT-p5))
+;(library
+; (name syntax_p5)
+; (public_name GT.syntax)
+; (wrapped false)
+; (modules)
+; (libraries GT-p5))

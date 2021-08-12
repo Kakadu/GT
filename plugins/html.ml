@@ -23,7 +23,6 @@
 open Base
 open Ppxlib
 open Printf
-open GTCommon
 open HelpersBase
 
 let trait_name = "html"
@@ -57,7 +56,7 @@ module H = struct
   let li ~loc xs =
     Exp.app ~loc (wrap ~loc "li") @@ Exp.app ~loc (wrap ~loc "seq") @@ to_list_e ~loc xs
   let seq ~loc xs =
-    Exp.app ~loc (wrap ~loc "seq") @@ to_list_e ~loc xs    
+    Exp.app ~loc (wrap ~loc "seq") @@ to_list_e ~loc xs
   (* let ol ~loc xs =
    *   Exp.app ~loc (wrap ~loc "ol") @@ Exp.app ~loc (wrap ~loc "seq") @@ to_list_e ~loc xs *)
   let ul ~loc xs =
@@ -97,7 +96,7 @@ class g args tdecls = object(self)
     in
 
     if List.length ts = 0
-    then H.(pcdata ~loc constr_name) 
+    then H.(pcdata ~loc constr_name)
     else
         H.seq ~loc @@ (
            (H.pcdata ~loc constr_name) ::
@@ -166,7 +165,7 @@ class g args tdecls = object(self)
               ]
         )
 
-  method! make_inh ~loc = 
+  method! make_inh ~loc =
     (Pat.unit ~loc, Exp.unit ~loc)
 end
 

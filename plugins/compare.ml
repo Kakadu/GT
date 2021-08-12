@@ -11,14 +11,13 @@
 
 (*
  * OCanren: syntax extension.
- * Copyright (C) 2016-2017
+ * Copyright (C) 2016-2021
  *   Dmitrii Kosarev a.k.a. Kakadu
  * St.Petersburg University, JetBrains Research
  *)
 open Base
 open Ppxlib
 open Printf
-open GTCommon
 open HelpersBase
 
 let trait_name = "compare"

@@ -11,7 +11,6 @@
     Inherited attribute' is the same as argument, synthetized attribute is {!GT.comparison}.
 *)
 
-open GTCommon
 
 let trait_name = "eq"
 

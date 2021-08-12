@@ -12,6 +12,11 @@
  (version 0.4.2))
 
 (package
+ (name GT-common)
+ (synopsis "")
+ (version 0.4.2))
+
+(package
  (name GT-p5)
  (synopsis "Camlp5 extension for GT")
  (version 0.4.2))
