@@ -13,6 +13,8 @@ on:
 env:
   OPAMROOT: /home/opam/.opam
   OPAMYES: true
+  GT_WITH_DOCS: yes
+
 jobs:
   build:
     strategy:
@@ -26,9 +28,6 @@ jobs:
       image: ocaml/opam:ubuntu-lts-ocaml-4.14
       options: --user root               # dirty hack
 
-    env:
-      GT_WITH_DOCS: yes
-
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.11.0
@@ -38,29 +37,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # - name: Retrieve date for cache key
-      #   id: cache-key
-      #   run: echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
-      #   shell: bash
-
-      # - name: Restore opam cache
-      #   id: opam-cache
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: "~/.opam"
-      #     # invalidate cache daily, gets built daily using a scheduled job
-      #     key: ${{ steps.cache-key.outputs.date }}
-
-      # - name: Use OCaml ${{ matrix.ocaml-version }}
-      #   uses: avsm/setup-ocaml@v2
-      #   with:
-      #     ocaml-compiler: ${{ matrix.ocaml-compiler }}
-
       - run: |
           git config --global --add safe.directory /__w/GT/GT
           git submodule update --init
       - run: opam pin add GT . --no-action
-      - run: opam depext . --yes --with-test
+      - run: opam depext GT --yes --with-test
 
       - name: Install dependecies for documentation
         run: |
