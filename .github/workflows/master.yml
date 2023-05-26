@@ -53,7 +53,9 @@ jobs:
       #   with:
       #     ocaml-compiler: ${{ matrix.ocaml-compiler }}
 
-      - run: git submodule update --init
+      - run: |
+          git config --global --add safe.directory /__w/GT/GT
+          git submodule update --init
       - run: opam pin add GT . --no-action
       - run: opam depext --yes --with-test
 
