@@ -60,10 +60,12 @@ jobs:
           git config --global --add safe.directory /__w/GT/GT
           git submodule update --init
       - run: opam pin add GT . --no-action
-      - run: opam depext --yes --with-test
+      - run: opam depext . --yes --with-test
 
       - name: Install dependecies for documentation
-        run: opam install odoc pa_ppx --yes
+        run: |
+          sudo apt-get install pkg-config -y
+          opam install odoc pa_ppx --yes
 
       - run: opam install . --deps-only --with-test
       - run: opam exec -- dune build  --profile=release
