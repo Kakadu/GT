@@ -1,11 +1,14 @@
-name: Build master
+name: Build master in docker
 
 on:
-  push:
-    paths-ignore:
-      - 'README.md'
+  pull_request:
     branches:
       - 'master'
+  push:
+    branches:
+      - 'master'
+    paths-ignore:
+      - 'README.md'
 
 jobs:
   build:
@@ -13,38 +16,45 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-20.04
-        ocaml-compiler:
-          - ocaml-base-compiler.4.12.1
+          - ubuntu-latest
+
+    runs-on: ${{ matrix.os }}
+    container:
+      image: ocaml/opam:ubuntu-lts-ocaml-4.14
+      options: --user root               # dirty hack
 
     env:
       GT_WITH_DOCS: yes
 
-    runs-on: ${{ matrix.os }}
-
     steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}
+
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Retrieve date for cache key
-        id: cache-key
-        run: echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
-        shell: bash
+      # - name: Retrieve date for cache key
+      #   id: cache-key
+      #   run: echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
+      #   shell: bash
 
-      - name: Restore opam cache
-        id: opam-cache
-        uses: actions/cache@v2
-        with:
-          path: "~/.opam"
-          # invalidate cache daily, gets built daily using a scheduled job
-          key: ${{ steps.cache-key.outputs.date }}
+      # - name: Restore opam cache
+      #   id: opam-cache
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: "~/.opam"
+      #     # invalidate cache daily, gets built daily using a scheduled job
+      #     key: ${{ steps.cache-key.outputs.date }}
 
-      - name: Use OCaml ${{ matrix.ocaml-version }}
-        uses: avsm/setup-ocaml@v2
-        with:
-          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+      # - name: Use OCaml ${{ matrix.ocaml-version }}
+      #   uses: avsm/setup-ocaml@v2
+      #   with:
+      #     ocaml-compiler: ${{ matrix.ocaml-compiler }}
 
-      #- run: opam pin add GT . --no-action
+      - run: git submodule update --init
+      - run: opam pin add GT . --no-action
       - run: opam depext --yes --with-test
 
       - name: Install dependecies for documentation
@@ -70,3 +80,14 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./_build/default/_doc/_html
+
+      - name: Send coverage report to Coveralls
+        run: |
+          #git config --global --add safe.directory /__w/zanuda/zanuda
+          opam exec -- make coverage
+          opam exec -- bisect-ppx-report send-to Coveralls --coverage-path $BISECT_DIR
+        env:
+          BISECT_DIR: /tmp/GTcov
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PULL_REQUEST_NUMBER: ${{ github.event.number }}
+
