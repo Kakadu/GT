@@ -28,7 +28,7 @@
   ocamlgraph
   logger-p5
   ppx_inline_test
-  ppx_bisect
+  bisect_ppx
   (ocaml
    (>= "4.13"))
   (ocaml-migrate-parsetree
