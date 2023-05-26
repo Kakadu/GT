@@ -10,6 +10,9 @@ on:
     paths-ignore:
       - 'README.md'
 
+env:
+  OPAMROOT: /home/opam/.opam
+  OPAMYES: true
 jobs:
   build:
     strategy:
