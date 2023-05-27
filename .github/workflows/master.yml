@@ -41,14 +41,14 @@ jobs:
           git config --global --add safe.directory /__w/GT/GT
           git submodule update --init
       - run: opam pin add GT . --no-action
-      - run: opam depext GT --yes --with-test
+      - run: opam depext GT --yes #--with-test
 
       - name: Install dependecies for documentation
         run: |
           sudo apt-get install pkg-config -y
           opam install odoc pa_ppx --yes
 
-      - run: opam install . --deps-only --with-test
+      - run: opam install . --deps-only #--with-test
       - run: opam exec -- dune build  --profile=release
       - run: opam exec -- dune test   --profile=release
 
@@ -78,4 +78,3 @@ jobs:
           BISECT_DIR: /tmp/GTcov
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PULL_REQUEST_NUMBER: ${{ github.event.number }}
-
