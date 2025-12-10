@@ -24,6 +24,10 @@
   ;
   ))
 
+(cram
+ (applies_to errors)
+ (deps ../ppx/pp_gt.exe))
+
 ; (executable
 ;  (name test827mut)
 ;  (modules test827mut)
