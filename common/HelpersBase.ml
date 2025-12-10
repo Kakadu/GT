@@ -1,14 +1,14 @@
 (*
- * Generic Transformers PPX syntax extension.
+   * Generic Transformers PPX syntax extension.
  * Copyright (C) 2016-2021
  *   Dmitrii Kosarev aka Kakadu
  * St.Petersburg State University, JetBrains Research
- *)
+*)
 
 let id x = x
 
 let not_implemented fmt =
-  Printf.ksprintf (Ppxlib.Location.raise_errorf "%s are not yet implemented") fmt
+  Format.kasprintf (Ppxlib.Location.raise_errorf "%s are not yet implemented") fmt
 ;;
 
 module Option = struct
@@ -131,13 +131,13 @@ let compare_core_type a b =
 ;;
 
 let visit_typedecl
-  ~loc
-  ?(onrecord = fun _ -> not_implemented ~loc "record types")
-  ?(onmanifest = fun _ -> not_implemented ~loc "manifest")
-  ?(onvariant = fun _ -> not_implemented ~loc "algebraic types")
-  ?(onabstract = fun _ -> not_implemented ~loc "abstract types without manifest")
-  ?(onopen = fun () -> not_implemented ~loc "open types")
-  tdecl
+      ~loc
+      ?(onrecord = fun _ -> not_implemented ~loc "record types")
+      ?(onmanifest = fun _ -> not_implemented ~loc "manifest")
+      ?(onvariant = fun _ -> not_implemented ~loc "algebraic types")
+      ?(onabstract = fun _ -> not_implemented ~loc "abstract types without manifest")
+      ?(onopen = fun () -> not_implemented ~loc "open types")
+      tdecl
   =
   match tdecl.ptype_kind with
   | Ptype_record r -> onrecord r
@@ -211,12 +211,11 @@ let vars_from_tdecl tdecl =
     | Ptype_open | Ptype_abstract -> SS.empty
     | Ptype_record ls -> of_labels ls
     | Ptype_variant cds ->
-      List.fold_left cds ~init:SS.empty ~f:(fun acc ->
-          function
-          | { pcd_args = Pcstr_tuple ts } ->
-            List.fold_left ~init:SS.empty ts ~f:(fun acc x ->
-              SS.union acc (vars_from_core_type x))
-          | { pcd_args = Pcstr_record ls } -> SS.union acc (of_labels ls))
+      List.fold_left cds ~init:SS.empty ~f:(fun acc -> function
+        | { pcd_args = Pcstr_tuple ts } ->
+          List.fold_left ~init:SS.empty ts ~f:(fun acc x ->
+            SS.union acc (vars_from_core_type x))
+        | { pcd_args = Pcstr_record ls } -> SS.union acc (of_labels ls))
   in
   SS.union ans2 ans
 ;;
@@ -245,7 +244,7 @@ let map_core_type ?(onconstr = fun _ _ -> None) ~onvar t =
             { rf with prf_desc = Rtag (name, flg, params) })
       in
       { t with ptyp_desc = Ptyp_variant (rows, flg, opt) }
-    | _ -> failwith "not implemented"
+    | _ -> not_implemented "inside map_core_type:\n%a" Pprintast.core_type t
   in
   helper t
 ;;
@@ -283,8 +282,8 @@ let is_type_used_in ~tdecl lident =
       ~onmanifest:helper
       ~onvariant:
         (List.iter ~f:(function
-          | { pcd_args = Pcstr_tuple ls } -> List.iter ~f:helper ls
-          | { pcd_args = Pcstr_record ls } -> onrecord ls))
+           | { pcd_args = Pcstr_tuple ls } -> List.iter ~f:helper ls
+           | { pcd_args = Pcstr_record ls } -> onrecord ls))
       ~onrecord;
     false
   with
