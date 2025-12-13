@@ -130,10 +130,17 @@ let compare_core_type a b =
     (Format.asprintf "%a" Pprintast.core_type b)
 ;;
 
+exception On_error_extension of Parsetree.extension
+
 let visit_typedecl
       ~loc
       ?(onrecord = fun _ -> not_implemented ~loc "record types")
       ?(onmanifest = fun _ -> not_implemented ~loc "manifest")
+      ?(on_error_extension =
+        fun ext ->
+          (* Printexc.print_backtrace stderr; *)
+          (* not_implemented ~loc "on_error_extension" *)
+          raise (On_error_extension ext))
       ?(onvariant = fun _ -> not_implemented ~loc "algebraic types")
       ?(onabstract = fun _ -> not_implemented ~loc "abstract types without manifest")
       ?(onopen = fun () -> not_implemented ~loc "open types")
@@ -146,6 +153,8 @@ let visit_typedecl
   | Ptype_abstract ->
     (match tdecl.ptype_manifest with
      | None -> onabstract ()
+     | Some { ptyp_desc = Ptyp_extension (({ txt = "error" }, _) as ext) } ->
+       on_error_extension ext
      | Some typ -> onmanifest typ)
 ;;
 

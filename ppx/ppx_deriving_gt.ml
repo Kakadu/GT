@@ -1,10 +1,10 @@
 (*
- * Generic Transformers PPX syntax extension.
+   * Generic Transformers PPX syntax extension.
  * Copyright (C) 2016-2021
  *   Dmitrii Kosarev aka Kakadu
  * St.Petersburg State University, JetBrains Research
  *
- *)
+*)
 
 open Ppxlib
 open GTCommon
@@ -38,6 +38,9 @@ let str_type_decl : (_, _) Deriving.Generator.t =
       in
       H.str_type_decl_many_plugins
         ~loc
+        ~fk:(fun exn ->
+          [ Ppxlib.Ast_builder.Default.pstr_extension ~loc exn [] ]
+          (* Ppxlib.Location.raise_errorf ~loc "some error" *))
         []
         (match cfg with
          | None -> []

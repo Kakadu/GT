@@ -388,6 +388,9 @@ let class_declaration  ~loc ~name ?(virt=false) ?(wrap=(fun x -> x)) ~params fie
 
 module Str = struct
   type t = MLast.str_item
+
+  let an_error ~loc _str = failwith "not implemented"
+
   let of_tdecls ~loc td =
     let open Ppxlib in
     let tdPrm = HelpersBase.map_type_param_names td.ptype_params

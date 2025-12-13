@@ -1069,16 +1069,19 @@ module Make (AstHelpers : GTHELPERS_sig.S) = struct
       List.concat_map ~f:(do_typ_sig ~loc si plugins false) (sort_decls tdls)
   ;;
 
-  let str_type_decl_many_plugins ~loc si plugins_info declaration =
-    let plugins =
-      List.fold_left plugins_info ~init:[] ~f:(fun acc (name, args) ->
-        wrap_plugin name args acc)
-    in
-    match declaration with
-    | Recursive, [] -> []
-    | Recursive, [ tdecl ] -> do_typ ~loc si plugins true tdecl
-    | Recursive, ts -> do_mutual_types ~loc si plugins (sort_decls ts)
-    | Nonrecursive, decls -> List.concat_map ~f:(do_typ ~loc si plugins false) decls
+  let str_type_decl_many_plugins ~loc si plugins_info declaration ~fk =
+    try
+      let plugins =
+        List.fold_left plugins_info ~init:[] ~f:(fun acc (name, args) ->
+          wrap_plugin name args acc)
+      in
+      match declaration with
+      | Recursive, [] -> []
+      | Recursive, [ tdecl ] -> do_typ ~loc si plugins true tdecl
+      | Recursive, ts -> do_mutual_types ~loc si plugins (sort_decls ts)
+      | Nonrecursive, decls -> List.concat_map ~f:(do_typ ~loc si plugins false) decls
+    with
+    | HelpersBase.On_error_extension ex -> fk ex
   ;;
 
   let str_type_ext_many_plugins ~loc si plugins_info extension = []

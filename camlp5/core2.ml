@@ -25,6 +25,7 @@ let generate_str is_nonrec tdecls loc =
   let generator_f si =
     H.str_type_decl_many_plugins ~loc si
       (List.map (fun s -> (s,Expander.Use []) ) info)
+      ~fk:(fun _ -> failwith "An error while code generation")
   in
   let out =
     let sis = <:str_item< type $list:(List.map fst tdecls)$ >>  in

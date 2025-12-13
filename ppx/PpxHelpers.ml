@@ -327,14 +327,16 @@ let type_declaration ~loc ~name ~params ~manifest ~kind =
 module Str = struct
   type t = structure_item
 
+  let an_error ~loc str = pstr_extension ~loc (Location.error_extensionf ~loc "%s" str) []
+
   let single_class
-    ~loc
-    ?(virt = Asttypes.Virtual)
-    ?(pat = [%pat? _])
-    ?(wrap = fun x -> x)
-    ~name
-    ~params
-    body
+        ~loc
+        ?(virt = Asttypes.Virtual)
+        ?(pat = [%pat? _])
+        ?(wrap = fun x -> x)
+        ~name
+        ~params
+        body
     =
     pstr_class
       [ Ast_helper.Ci.mk ~virt ~params (Located.mk ~loc name)
@@ -403,8 +405,8 @@ module Str = struct
            ~name:(Located.mk ~loc name)
            ~params:
              (List.map params ~f:(function
-               | None -> ptyp_any ~loc, (NoVariance, NoInjectivity)
-               | Some s -> ptyp_var ~loc s, (NoVariance, NoInjectivity)))
+                | None -> ptyp_any ~loc, (NoVariance, NoInjectivity)
+                | Some s -> ptyp_var ~loc s, (NoVariance, NoInjectivity)))
            ~cstrs:[]
            ~kind:Ptype_abstract
            ~private_:Public
@@ -427,7 +429,7 @@ module Str = struct
   let simple_gadt
     : loc:loc -> name:string -> params_count:int -> (string * Typ.t) list -> t
     =
-   fun ~loc ~name ~params_count xs ->
+    fun ~loc ~name ~params_count xs ->
     pstr_type
       ~loc
       Recursive
@@ -447,7 +449,7 @@ module Str = struct
                     ~args:(Pcstr_tuple [])
                     ~res:(Some typ))))
       ]
- ;;
+  ;;
 
   let module_ ~loc name me =
     pstr_module ~loc @@ module_binding ~loc ~name:(Located.mk ~loc (Some name)) ~expr:me
@@ -526,8 +528,8 @@ module Sig = struct
            ~name:(Located.mk ~loc name)
            ~params:
              (List.map params ~f:(function
-               | None -> ptyp_any ~loc, (NoVariance, NoInjectivity)
-               | Some s -> ptyp_var ~loc s, (NoVariance, NoInjectivity)))
+                | None -> ptyp_any ~loc, (NoVariance, NoInjectivity)
+                | Some s -> ptyp_var ~loc s, (NoVariance, NoInjectivity)))
            ~cstrs:[]
            ~kind:Ptype_abstract
            ~private_:Public
@@ -550,7 +552,7 @@ module Sig = struct
   let simple_gadt
     : loc:loc -> name:string -> params_count:int -> (string * Typ.t) list -> t
     =
-   fun ~loc ~name ~params_count xs ->
+    fun ~loc ~name ~params_count xs ->
     psig_type
       ~loc
       Recursive
@@ -570,7 +572,7 @@ module Sig = struct
                     ~args:(Pcstr_tuple [])
                     ~res:(Some typ))))
       ]
- ;;
+  ;;
 
   let module_ ~loc md = psig_module ~loc md
   let modtype ~loc = psig_modtype ~loc
@@ -670,7 +672,7 @@ module Cl = struct
 end
 
 (*
-module Cstr = struct
+   module Cstr = struct
   let mk ~self fields = class_structure ~self ~fields
 end*)
 
@@ -699,13 +701,13 @@ let map_type_param_names ~f ps =
 ;;
 
 let prepare_param_triples
-  ~loc
-  ~extra
-  ?(inh = fun ~loc s -> Typ.var ~loc @@ "i" ^ s)
-  ?(syn = fun ~loc s -> Typ.var ~loc @@ "s" ^ s)
-  ?(default_inh = [%type: 'inh])
-  ?(default_syn = [%type: 'syn])
-  names
+      ~loc
+      ~extra
+      ?(inh = fun ~loc s -> Typ.var ~loc @@ "i" ^ s)
+      ?(syn = fun ~loc s -> Typ.var ~loc @@ "s" ^ s)
+      ?(default_inh = [%type: 'inh])
+      ?(default_syn = [%type: 'syn])
+      names
   =
   let ps =
     List.concat_map names ~f:(fun n -> [ inh ~loc n; Typ.var ~loc n; syn ~loc n ])

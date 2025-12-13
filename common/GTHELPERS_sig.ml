@@ -1,9 +1,9 @@
 (*
- * Generic Transformers PPX syntax extension.
+   * Generic Transformers PPX syntax extension.
  * Copyright (C) 2016-2021
  *   Dmitrii Kosarev aka Kakadu
  * St.Petersburg State University, JetBrains Research
- *)
+*)
 
 (** Signature of AST building functions that are required to support a new backend *)
 
@@ -142,7 +142,7 @@ module type S = sig
   end
 
   and Ctf : (* class_sig_item *)
-  sig
+    sig
     type t
 
     val inherit_ : loc:loc -> Cty.t -> t
@@ -183,6 +183,7 @@ module type S = sig
     val module_ : loc:loc -> string -> Me.t -> t
     val modtype : loc:loc -> module_type_declaration -> t
     val include_ : loc:loc -> Me.t -> t
+    val an_error : loc:loc -> string -> t
   end
 
   and Sig : sig
@@ -240,7 +241,7 @@ module type S = sig
   end
 
   and Cl : (* class_expr *)
-  sig
+    sig
     type t
 
     val fun_ : loc:loc -> Pat.t -> t -> t
